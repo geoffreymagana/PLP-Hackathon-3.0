@@ -87,14 +87,14 @@ export default function ExplorePage() {
   return (
     <div className="p-4 md:p-8 space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Explore Career Paths</h1>
-        <p className="text-muted-foreground">Discover a wide range of careers and find the one that's right for you.</p>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Explore Learning Paths</h1>
+        <p className="text-muted-foreground">Discover a wide range of learning journeys and find the one that's right for you.</p>
       </header>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
-          placeholder="Search careers by title, description, or skill..."
+          placeholder="Search paths by title, description, or skill..."
           className="pl-10 text-base h-12"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -118,7 +118,7 @@ export default function ExplorePage() {
                 ))
               ) : (
                 <p className="text-muted-foreground text-center md:col-span-2 lg:col-span-3 py-8">
-                  No careers found in this sector for your search term.
+                  No learning paths found in this sector for your search term.
                 </p>
               )}
             </div>

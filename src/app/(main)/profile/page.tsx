@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -55,7 +56,7 @@ export default function ProfilePage() {
                     ...data
                 });
             } else {
-                 router.push('/?onboarding=true');
+                 router.push('/onboarding');
             }
         } else {
             router.push('/login');
@@ -68,6 +69,10 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
       router.push("/login");
     } catch (error) {
        toast({

@@ -12,10 +12,12 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, Terminal } from "lucide-react";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
+import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, isFirebaseConfigured, provider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -32,6 +34,7 @@ export default function SignupPage() {
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -41,7 +44,7 @@ export default function SignupPage() {
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            router.push('/?onboarding=true');
+            router.push('/onboarding');
         } catch (error: any) {
             console.error("Signup failed:", error);
             let description = "An unexpected error occurred. Please try again.";
@@ -60,12 +63,34 @@ export default function SignupPage() {
         }
     };
     
-    const handleGoogleLogin = () => {
-        // Placeholder for Google Sign-in logic
-        toast({
-            title: "Coming Soon!",
-            description: "Google Sign-in is not yet implemented.",
-        });
+    const handleGoogleLogin = async () => {
+        setIsGoogleLoading(true);
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if (docSnap.exists()) {
+                 router.push('/');
+            } else {
+                router.push('/onboarding');
+            }
+        } catch (error: any) {
+            console.error("Google signup failed:", error);
+            let description = "An unexpected error occurred. Please try again.";
+            if (error.code === 'auth/popup-closed-by-user') {
+                description = "The sign-up popup was closed before completion.";
+            }
+            toast({
+                variant: "destructive",
+                title: "Google Sign-up Failed",
+                description: description,
+            });
+        } finally {
+            setIsGoogleLoading(false);
+        }
     }
 
     return (
@@ -91,24 +116,25 @@ export default function SignupPage() {
                     <form className="space-y-4" onSubmit={handleSignup}>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
+                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading}/>
                         </div>
                         <div className="space-y-2 relative">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
+                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading}/>
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
                                 className="absolute right-1 top-7 h-7 w-7"
                                 onClick={() => setShowPassword(!showPassword)}
+                                disabled={isGoogleLoading}
                             >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
                             </Button>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Checkbox id="terms" required/>
+                            <Checkbox id="terms" required disabled={isGoogleLoading}/>
                             <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
                                 I agree to the{' '}
                                 <Link href="/terms" className="font-medium text-primary hover:underline">
@@ -116,7 +142,7 @@ export default function SignupPage() {
                                 </Link>
                             </Label>
                         </div>
-                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading || isGoogleLoading}>
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Create Account
                         </Button>
@@ -126,7 +152,8 @@ export default function SignupPage() {
                         <span className="px-4 text-sm text-muted-foreground">OR</span>
                         <Separator className="flex-1" />
                     </div>
-                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
+                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline" disabled={isLoading || isGoogleLoading}>
+                         {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         <GoogleIcon className="mr-3" />
                         Sign up with Google
                     </Button>

@@ -13,7 +13,7 @@ export default function AboutPage() {
     <div className="p-4 md:p-8 space-y-8">
       <PageHeader
         title="About PathFinder AI"
-        description="Empowering the next generation of African talent through technology."
+        description="Democratizing personalized quality education for everyone, everywhere."
       />
 
       <div className="max-w-4xl mx-auto space-y-12">
@@ -23,7 +23,7 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent className="text-lg text-muted-foreground">
             <p>
-              Our mission is to bridge the gap between talented individuals across Africa and the global job market. We believe in the power of personalized guidance and community support to unlock potential and create pathways to success.
+             Our mission is to bridge the gap between ambition and opportunity by providing personalized, AI-powered learning roadmaps. We believe in the power of accessible education and community support to unlock potential and create pathways to success for all.
             </p>
           </CardContent>
         </Card>
@@ -34,7 +34,7 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent className="text-lg text-muted-foreground">
             <p>
-              We envision a future where every young African has the tools, resources, and connections needed to build a fulfilling and prosperous career, driving innovation and growth across the continent.
+              We envision a future where anyone, regardless of their background or location, has the tools to build a fulfilling life through continuous learning. We aim to be the lifelong learning companion that drives innovation and growth across the continent and beyond.
             </p>
           </CardContent>
         </Card>

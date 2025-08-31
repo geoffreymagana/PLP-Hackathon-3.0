@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/", icon: <LayoutDashboard />, label: "Dashboard" },
     { href: "/my-roadmaps", icon: <GitMerge />, label: "Roadmap" },
-    { href: "/check-in", icon: <Bot />, label: "Chat" },
+    { href: "/check-in", icon: <Bot />, label: "Tutor" },
     { href: "/explore", icon: <Compass />, label: "Explore" },
     { href: "/connect", icon: <Users />, label: "Connect" },
   ];

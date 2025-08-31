@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { monthlyCheckin, MonthlyCheckinOutput } from "@/ai/flows/ai-powered-monthly-checkins";
+import { microTutorChat, MicroTutorChatOutput } from "@/ai/flows/ai-micro-tutor";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
@@ -21,6 +21,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { sendNewMessageNotification } from "@/services/notification-service";
 
 const formSchema = z.object({
   currentProgress: z.string().min(1, "Message cannot be empty."),
@@ -123,7 +124,7 @@ export default function CheckInPage() {
       await setDoc(userDocRef, { chatHistory: updatedMessages }, { merge: true });
   }
 
-  async function callMonthlyCheckin(values: z.infer<typeof formSchema>, currentMessages: Message[]) {
+  async function callMicroTutorChat(values: z.infer<typeof formSchema>, currentMessages: Message[]) {
     if (!userProfile) return;
 
     setIsLoading(true);
@@ -131,7 +132,7 @@ export default function CheckInPage() {
     setShowSuggestions(false);
 
     try {
-      const result: MonthlyCheckinOutput = await monthlyCheckin({
+      const result: MicroTutorChatOutput = await microTutorChat({
         userProfile: `Skills: ${userProfile.skills}, Interests: ${userProfile.interests}, Education: ${userProfile.education}`,
         careerGoal: userProfile.savedRoadmaps?.[0]?.career || "Not specified",
         currentProgress: values.currentProgress,
@@ -147,12 +148,17 @@ export default function CheckInPage() {
       setSuggestedPrompts(result.suggestedPrompts);
       setShowSuggestions(true);
       await saveChatHistory(updatedMessages);
+      
+      // Send notification for new AI message
+      if(document.visibilityState !== 'visible') {
+        sendNewMessageNotification();
+      }
 
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "AI Check-in Failed",
+        title: "AI Tutor Failed",
         description: "There was a problem communicating with the AI. Please try again.",
       });
       setMessages(prev => prev.slice(0, -1)); // Remove the user message on error
@@ -170,7 +176,7 @@ export default function CheckInPage() {
     const updatedMessages = [...messages, newUserMessage];
     setMessages(updatedMessages);
     await saveChatHistory(updatedMessages);
-    await callMonthlyCheckin(values, updatedMessages);
+    await callMicroTutorChat(values, updatedMessages);
   }
   
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -189,7 +195,7 @@ export default function CheckInPage() {
   // Initial message call
   useEffect(() => {
     if (!isProfileLoading && userProfile && messages.length === 0) {
-      callMonthlyCheckin({ currentProgress: "Hello! Please greet me and start our monthly check-in." }, []);
+      callMicroTutorChat({ currentProgress: "Hello! Please greet me and start our session." }, []);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProfileLoading, userProfile]);
@@ -201,8 +207,8 @@ export default function CheckInPage() {
   return (
     <div className="flex flex-col h-screen">
       <header className="p-4 md:p-8 border-b">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Monthly Check-in</h1>
-        <p className="text-muted-foreground">Chat with your AI coach to refine your roadmap.</p>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">AI-Micro-Tutor (Chat AMT)</h1>
+        <p className="text-muted-foreground">Chat with your AI coach to get answers and refine your roadmap.</p>
       </header>
       
       <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-24 md:pb-8" ref={scrollAreaRef}>
@@ -264,7 +270,7 @@ export default function CheckInPage() {
                   <FormControl>
                     <Textarea 
                       ref={textareaRef}
-                      placeholder="Describe your progress or ask a question..." 
+                      placeholder="Ask a question or describe your progress..." 
                       {...field} 
                       className="min-h-0 overflow-y-hidden resize-none"
                       rows={1}

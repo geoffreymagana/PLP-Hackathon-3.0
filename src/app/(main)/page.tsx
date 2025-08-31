@@ -1,10 +1,8 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { ArrowRight, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +21,6 @@ import {
 import { personalizedCareerSuggestions, type PersonalizedCareerSuggestionsOutput } from "@/ai/flows/personalized-career-suggestions";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Onboarding } from "@/components/onboarding";
 import { Progress } from "@/components/ui/progress";
 import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -34,8 +31,8 @@ import { RoadmapCard } from "@/components/roadmap-card";
 
 const loadingTexts = [
     "Analyzing your profile...",
-    "Scanning the job market...",
-    "Identifying top career matches...",
+    "Scanning the learning landscape...",
+    "Identifying top learning paths...",
     "Finalizing your suggestions...",
 ];
 
@@ -46,12 +43,11 @@ type UserProfile = {
   location: string;
   email?: string;
   savedRoadmaps?: any[];
-  suggestionsGenerated?: boolean;
 };
 
 const SuggestionsContainer = ({ suggestions }: { suggestions: PersonalizedCareerSuggestionsOutput }) => (
   <div id="suggestions" className="space-y-4 pt-8">
-    <h2 className="text-2xl font-bold tracking-tight font-headline">Career Suggestions</h2>
+    <h2 className="text-2xl font-bold tracking-tight font-headline">Learning Path Suggestions</h2>
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {suggestions.careers.map((career) => (
         <Card key={career.title} className="flex flex-col hover:shadow-lg transition-shadow duration-300">
@@ -96,16 +92,20 @@ const LoadingState = ({ progress, text }: { progress: number, text: string }) =>
     </Card>
 );
 
-const DiscoverPotentialCard = ({ userProfile, onGenerate }: { userProfile: UserProfile, onGenerate: () => void }) => (
-    <Card className="bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-2xl">
+const DiscoverPotentialCard = ({ userProfile, onGenerate, onDismiss }: { userProfile: UserProfile, onGenerate: () => void, onDismiss: () => void }) => (
+    <Card className="relative bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-2xl">
+        <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8" onClick={onDismiss}>
+            <X className="h-5 w-5" />
+            <span className="sr-only">Dismiss</span>
+        </Button>
         <CardHeader>
-            <CardTitle className="text-3xl font-bold flex items-center gap-3"><Wand2 />Discover Your Potential</CardTitle>
+            <CardTitle className="text-3xl font-bold flex items-center gap-3"><Wand2 />Discover Your Learning Path</CardTitle>
             <CardDescription className="text-primary-foreground/80">
-                Leverage our AI to generate personalized career suggestions based on your unique profile.
+                Leverage our AI to generate personalized learning roadmaps based on your unique profile.
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <p className="text-sm">Click the button below to start the process. We'll use your profile information to find the best career paths for you in the African job market.</p>
+            <p className="text-sm">Click the button below to start the process. We'll use your profile information to find the best learning journeys for you.</p>
         </CardContent>
         <CardFooter>
             <AlertDialog>
@@ -119,7 +119,7 @@ const DiscoverPotentialCard = ({ userProfile, onGenerate }: { userProfile: UserP
                     <AlertDialogHeader>
                         <AlertDialogTitle>Confirm Your Profile</AlertDialogTitle>
                         <AlertDialogDescription>
-                            We will use the following information to generate your career suggestions. Please confirm it is correct.
+                            We will use the following information to generate your learning suggestions. Please confirm it is correct.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="text-sm space-y-3 rounded-md border p-4 bg-muted/50">
@@ -152,7 +152,7 @@ const SavedRoadmapsPreview = ({ roadmaps }: { roadmaps: any[] }) => (
                 <Link href="/explore" passHref className="w-full h-full">
                     <CardTitle className="text-lg">No roadmaps saved yet.</CardTitle>
                     <p className="text-sm text-muted-foreground mt-2">
-                        Explore careers and generate a roadmap to get started.
+                        Explore learning paths and generate a roadmap to get started.
                     </p>
                 </Link>
             </Card>
@@ -161,7 +161,6 @@ const SavedRoadmapsPreview = ({ roadmaps }: { roadmaps: any[] }) => (
 );
 
 function DashboardView() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -169,9 +168,10 @@ function DashboardView() {
   const [suggestions, setSuggestions] = useState<PersonalizedCareerSuggestionsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(searchParams.get('onboarding') === 'true');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingText, setLoadingText] = useState(loadingTexts[0]);
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
+
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -186,7 +186,7 @@ function DashboardView() {
         const profile = docSnap.data() as UserProfile;
         setUserProfile(profile);
       } else {
-        setShowOnboarding(true);
+        router.push('/onboarding');
       }
       setIsProfileLoading(false);
     };
@@ -223,22 +223,6 @@ function DashboardView() {
       return () => clearInterval(progressInterval);
     }
   }, [isLoading]);
-
-  const handleFinishOnboarding = () => {
-    setShowOnboarding(false);
-    setIsProfileLoading(true);
-    const user = auth.currentUser;
-    if (user) {
-      const docRef = doc(db, "users", user.uid);
-      getDoc(docRef).then(docSnap => {
-        if (docSnap.exists()) {
-          setUserProfile(docSnap.data() as UserProfile);
-        }
-        setIsProfileLoading(false);
-      });
-    }
-    router.replace('/', undefined);
-  };
   
   const handleGenerateSuggestions = async () => {
     if (!userProfile) {
@@ -254,16 +238,6 @@ function DashboardView() {
     try {
       const result = await personalizedCareerSuggestions(userProfile);
       setSuggestions(result);
-
-      // Mark that suggestions have been generated
-      const user = auth.currentUser;
-      if (user) {
-          const userDocRef = doc(db, "users", user.uid);
-          await setDoc(userDocRef, { suggestionsGenerated: true }, { merge: true });
-          // Update local profile state to hide the banner immediately
-          setUserProfile(prev => prev ? { ...prev, suggestionsGenerated: true } : null);
-      }
-
       router.push('/#suggestions');
     } catch (error) {
       console.error(error);
@@ -277,10 +251,6 @@ function DashboardView() {
     }
   };
   
-  if (showOnboarding) {
-    return <Onboarding onOnboardingComplete={handleFinishOnboarding} />;
-  }
-
   if (isProfileLoading) {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8">
@@ -299,20 +269,24 @@ function DashboardView() {
     );
   }
   
-  const showDiscoverCard = userProfile && !userProfile.suggestionsGenerated && !suggestions;
+  const showDiscoverCard = userProfile && isBannerVisible;
 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back! Here's your personalized career command center.
+          Welcome back! Here's your personalized learning command center.
         </p>
       </header>
 
       <div className="space-y-8">
         {showDiscoverCard && userProfile && (
-          <DiscoverPotentialCard userProfile={userProfile} onGenerate={handleGenerateSuggestions} />
+          <DiscoverPotentialCard 
+            userProfile={userProfile} 
+            onGenerate={handleGenerateSuggestions}
+            onDismiss={() => setIsBannerVisible(false)}
+          />
         )}
         
         {isLoading && (

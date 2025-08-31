@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Check, ChevronRight, Crown, Loader2, Bell } from "lucide-react";
+import { Check, ChevronRight, Crown, Loader2, Bell, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
@@ -380,16 +381,16 @@ export default function SettingsPage() {
                         <div className="flex justify-between items-center">
                             <p className="text-sm font-medium">Current Plan</p>
                             <p className={cn("font-bold text-lg", userProfile?.isProUser && "text-primary")}>
-                                {userProfile?.isProUser ? "Pro" : "Free"}
+                                {userProfile?.isProUser ? "Pro" : "Basic"}
                             </p>
                         </div>
                         {userProfile?.isProUser && <p className="text-xs text-muted-foreground">You have access to all features!</p>}
                     </Card>
                     <ul className="text-sm space-y-2 text-muted-foreground">
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Unlimited Roadmap Generations</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Unlimited Roadmap Saves</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Direct Mentor Connections</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Advanced Progress Analytics</li>
+                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Unlimited AI-Generated Roadmaps</li>
+                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Advanced Learning Analytics</li>
+                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Access to Verified Mentors</li>
+                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Priority Support</li>
                     </ul>
                     {!userProfile?.isProUser && (
                          <Link href="/pricing" className="w-full">
@@ -433,21 +434,30 @@ export default function SettingsPage() {
         </div>
 
 
-        <Card className="col-span-1 lg:col-span-2">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-3">
             <CardHeader>
                 <CardTitle>Mentorship & Communities</CardTitle>
                 <CardDescription>
                 Connect with peers, mentors, and industry experts across Africa.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 gap-4">
+            <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link href="/connect?tab=communities" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
                     <h4 className="font-semibold">Join a Community</h4>
                     <p className="text-sm text-muted-foreground">Engage in discussions, share progress, and find collaborators.</p>
                 </Link>
                 <Link href="/connect?tab=mentors" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
                     <h4 className="font-semibold">Find a Mentor</h4>
-                    <p className="text-sm text-muted-foreground">Get one-on-one guidance from experienced professionals in your field.</p>
+                    <p className="text-sm text-muted-foreground">Get one-on-one guidance from experienced professionals.</p>
+                </Link>
+                 <Link href="/become-mentor" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                        <h4 className="font-semibold">Become a Mentor</h4>
+                        <div className="p-1.5 bg-primary/10 rounded-full">
+                           <GraduationCap className="h-4 w-4 text-primary" />
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Share your expertise and guide the next generation of talent.</p>
                 </Link>
             </CardContent>
         </Card>

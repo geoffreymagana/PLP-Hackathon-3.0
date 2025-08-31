@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -11,23 +12,31 @@ import { PageHeader } from "@/components/page-header";
 const faqData = [
   {
     question: "What is PathFinder AI?",
-    answer: "PathFinder AI is an AI-powered platform designed to provide personalized career guidance and roadmaps, specifically tailored for the African job market. We help you discover your potential, find the right career path, and connect with mentors and communities.",
+    answer: "PathFinder AI is your personal AI-powered lifelong learning assistant. We provide customized learning roadmaps tailored to your skills and goals, helping you navigate your educational and professional journey with clarity.",
   },
   {
-    question: "How does the AI generate career suggestions?",
-    answer: "Our AI analyzes the skills, interests, education, and location you provide during onboarding. It then cross-references this information with current trends and demands in the African job market to suggest career paths where you have the highest potential for success.",
+    question: "How does the AI generate learning roadmaps?",
+    answer: "Our AI analyzes your skills, interests, and educational background. It then cross-references this with effective learning paths and in-demand skills to generate a step-by-step roadmap, complete with curated free resources like articles, YouTube tutorials, and open-source courses.",
+  },
+  {
+    question: "How many free roadmaps can I generate?",
+    answer: "On our free Basic plan, you can generate and save up to three personalized learning roadmaps. For unlimited roadmaps and advanced features, you can upgrade to our Pro plan.",
   },
   {
     question: "Are the roadmaps personalized?",
-    answer: "Yes. While the roadmaps are generated based on established learning paths for a given career, they take your profile into account to provide a comprehensive plan from foundational knowledge to advanced skills, ensuring there are no gaps in your learning.",
+    answer: "Yes, completely. Instead of a one-size-fits-all curriculum, PathFinder generates a learning journey that is customized to your starting point, aspirations, and available time, ensuring an efficient and effective learning experience.",
   },
   {
-    question: "Can I save more than one roadmap?",
-    answer: "Yes, you can save up to three different career roadmaps to your profile. This allows you to explore multiple interests simultaneously. You can manage your saved roadmaps from the 'My Roadmaps' page.",
+    question: "How can I earn as a mentor on PathFinder AI?",
+    answer: "Verified mentors have the opportunity to earn by hosting paid group sessions on our platform. We operate on a revenue-share model, where you set the price for your sessions, and we handle the platform and payment processing for a small fee. It's a great way to share your knowledge and build your brand.",
+  },
+  {
+    question: "Can I use PathFinder for more than just starting a new career?",
+    answer: "Absolutely. PathFinder is designed for lifelong learning. You can use it to upskill in your current role, learn a new technology, develop soft skills, explore a hobby, or even chart a path toward entrepreneurship.",
   },
   {
     question: "How do I update my profile information?",
-    answer: "You can update your profile information, including your name, skills, interests, and more, by navigating to the 'Settings' page from the user menu.",
+    answer: "You can update your profile information—including your skills, interests, and more—by navigating to the 'Settings' page from the user menu. Keeping your profile updated helps the AI provide you with the best possible recommendations.",
   },
   {
     question: "Is my data secure?",

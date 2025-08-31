@@ -549,36 +549,44 @@ SidebarMenuBadge.displayName = "SidebarMenuBadge"
 const SidebarMenuSkeleton = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
-    showIcon?: boolean
+    showIcon?: boolean;
+    count?: number;
   }
->(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
-  }, [])
+>(({ className, showIcon = false, count = 1, ...props }, ref) => {
 
   return (
     <div
       ref={ref}
-      data-sidebar="menu-skeleton"
-      className={cn("rounded-md h-8 flex gap-2 px-2 items-center", className)}
+      className={cn("flex flex-col gap-1", className)}
       {...props}
     >
-      {showIcon && (
-        <Skeleton
-          className="size-4 rounded-md"
-          data-sidebar="menu-skeleton-icon"
-        />
-      )}
-      <Skeleton
-        className="h-4 flex-1 max-w-[--skeleton-width]"
-        data-sidebar="menu-skeleton-text"
-        style={
-          {
-            "--skeleton-width": width,
-          } as React.CSSProperties
-        }
-      />
+      {[...Array(count)].map((_, i) => {
+        // Random width between 50 to 90%.
+        const width = `${Math.floor(Math.random() * 40) + 50}%`
+        return (
+          <div
+            key={i}
+            data-sidebar="menu-skeleton"
+            className="flex h-8 items-center gap-2 rounded-md px-2"
+          >
+            {showIcon && (
+              <Skeleton
+                className="size-4 rounded-md"
+                data-sidebar="menu-skeleton-icon"
+              />
+            )}
+            <Skeleton
+              className="h-4 flex-1 max-w-[--skeleton-width]"
+              data-sidebar="menu-skeleton-text"
+              style={
+                {
+                  "--skeleton-width": width,
+                } as React.CSSProperties
+              }
+            />
+          </div>
+        )
+      })}
     </div>
   )
 })

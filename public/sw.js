@@ -1,41 +1,35 @@
-self.addEventListener('push', function (event) {
-  const data = event.data ? event.data.json() : {};
-
-  const title = data.title || 'PathFinder AI';
-  const body = data.body || 'You have a new notification.';
-  const icon = data.icon || '/icons/icon-96x96.png';
-  const url = data.url || '/';
-
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body: body,
-      icon: icon,
-      data: { url: url },
-      tag: data.tag || 'default-tag'
-    })
-  );
+self.addEventListener('push', (event) => {
+  const data = event.data.json();
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: '/icons/icon-72x72.png',
+    data: {
+      url: data.url || '/',
+    },
+  };
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
-self.addEventListener('notificationclick', function (event) {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
-  // Safely get the URL with a fallback to the root
-  const urlToOpen = event.notification.data?.url || '/';
+  const urlToOpen = new URL(event.notification.data.url, self.location.origin).href;
 
   event.waitUntil(
     clients.matchAll({
       type: 'window',
-      includeUncontrolled: true
-    }).then(function (clientList) {
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
+      includeUncontrolled: true,
+    }).then((clientList) => {
+      if (clientList.length > 0) {
+        let client = clientList[0];
+        for (let i = 0; i < clientList.length; i++) {
+          if (clientList[i].focused) {
+            client = clientList[i];
+          }
         }
+        return client.focus().then(c => c.navigate(urlToOpen));
       }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
+      return clients.openWindow(urlToOpen);
     })
   );
 });

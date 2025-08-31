@@ -11,11 +11,13 @@ import { Logo } from "@/components/logo";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
+import { signInWithEmailAndPassword, getAuth, signInWithPopup } from "firebase/auth";
+import { auth, isFirebaseConfigured, provider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -32,6 +34,8 @@ export default function LoginPage() {
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -58,12 +62,39 @@ export default function LoginPage() {
         }
     };
     
-    const handleGoogleLogin = () => {
-        // Placeholder for Google Sign-in logic
-        toast({
-            title: "Coming Soon!",
-            description: "Google Sign-in is not yet implemented.",
-        });
+    const handleGoogleLogin = async () => {
+        setIsGoogleLoading(true);
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            // Check if user is new
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if (docSnap.exists()) {
+                // Existing user, go to dashboard
+                 router.push('/');
+            } else {
+                // New user, go to onboarding
+                router.push('/onboarding');
+            }
+        } catch (error: any) {
+            console.error("Google login failed:", error);
+            let description = "An unexpected error occurred. Please try again.";
+            if (error.code === 'auth/popup-closed-by-user') {
+                description = "The sign-in popup was closed before completion.";
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                description = "An account already exists with the same email address but different sign-in credentials.";
+            }
+            toast({
+                variant: "destructive",
+                title: "Google Sign-in Failed",
+                description: description,
+            });
+        } finally {
+            setIsGoogleLoading(false);
+        }
     }
 
     return (
@@ -89,7 +120,7 @@ export default function LoginPage() {
                     <form className="space-y-4" onSubmit={handleLogin}>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
+                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading}/>
                         </div>
                         <div className="space-y-2 relative">
                             <div className="flex items-center justify-between">
@@ -98,19 +129,20 @@ export default function LoginPage() {
                                     Forgot password?
                                 </Link>
                             </div>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
+                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading}/>
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
                                 className="absolute right-1 top-7 h-7 w-7"
                                 onClick={() => setShowPassword(!showPassword)}
+                                disabled={isGoogleLoading}
                             >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
                             </Button>
                         </div>
-                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading || isGoogleLoading}>
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Sign in with Email
                         </Button>
@@ -120,7 +152,8 @@ export default function LoginPage() {
                         <span className="px-4 text-sm text-muted-foreground">OR</span>
                         <Separator className="flex-1" />
                     </div>
-                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
+                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline" disabled={isLoading || isGoogleLoading}>
+                        {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         <GoogleIcon className="mr-3" />
                         Sign in with Google
                     </Button>

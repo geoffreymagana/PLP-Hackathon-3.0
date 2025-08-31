@@ -29,7 +29,7 @@ export default function RootLayout({
       <head>
         <title>PathFinder AI</title>
         <meta name="description" content="AI-powered career guidance for the African job market." />
-        <link rel="manifest" href="/manifest.json" crossOrigin="anonymous" />
+        <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#6d28d9" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

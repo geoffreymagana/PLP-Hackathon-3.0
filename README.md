@@ -1,36 +1,40 @@
+# PathFinder AI - Your Personal AI Learning Companion
 
-# PathFinder AI
+PathFinder AI is a Next.js application designed to provide **personalized, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
 
-PathFinder AI is a Next.js application designed to provide personalized career guidance and roadmaps, tailored for the African job market. It leverages AI to generate career suggestions, create learning roadmaps, and connect users with mentors and communities.
+## 💙 Our Mission & Alignment with SDG 4
+
+In line with **UN Sustainable Development Goal 4 (Quality Education)**, PathFinder AI is built to provide inclusive and equitable quality education and promote lifelong learning opportunities for all. We are not just a career guidance tool; we are a lifelong learning assistant.
+
+-   **Equitable Access:** We provide **3 free, personalized learning roadmaps** to anyone, anywhere, curating high-quality, free resources like open-source courses, YouTube tutorials, and community content.
+-   **Personalized Quality Education:** Our AI generates customized learning journeys that adapt to different educational levels and goals—from students to professionals upskilling for the future.
+-   **Lifelong Learning:** We support continuous education, whether it's acquiring new hard skills, developing soft skills, or pursuing entrepreneurship.
+-   **Inclusivity & Community:** We foster peer-to-peer learning through mentor and community connections, filling gaps left by formal education systems. Our roadmap includes future support for local languages and accessibility features like text-to-speech.
 
 ## ✨ Features
 
--   **AI-Powered Career Suggestions:** Get personalized career recommendations based on your skills, interests, and background.
--   **Dynamic Roadmap Generation:** Generate step-by-step roadmaps for any chosen career path.
--   **Progress Tracking:** Monitor your progress by completing milestones and acquiring new skills, visualized with charts.
--   **AI Monthly Check-ins:** Chat with an AI coach to refine your roadmap and get encouragement.
--   **Community & Mentor Connect:** Discover tech communities and find mentors to guide you.
--   **PWA & Push Notifications:** Install the app on your device and receive updates via push notifications.
--   **Subscription Model:** Integrated with Paystack for Pro plan subscriptions, including billing history and receipts.
+-   **AI-Powered Learning Suggestions:** Get personalized learning path recommendations based on your skills, interests, and aspirations.
+-   **Dynamic Roadmap Generation:** Generate step-by-step learning roadmaps for any chosen skill or career path.
+-   **Progress Tracking & Analytics:** Monitor your progress with basic tracking for free. Pro users get advanced analytics, including skill mastery visualization and readiness assessments.
+-   **AI Monthly Check-ins:** Chat with an AI coach to refine your roadmap and stay motivated.
+-   **Community & Mentor Connect:** Discover tech communities and find mentors to guide you. Pro users get access to verified mentors.
 
-## 💙 Social & Economic Impact
+## 💰 Monetization Model
 
-PathFinder AI aims to address critical challenges in the African job market by:
+Our model is designed to be sustainable while keeping the core service accessible.
 
--   **Empowering Youth:** Providing young Africans with the clarity and direction needed to pursue high-demand careers.
--   **Bridging the Skills Gap:** Aligning learning paths with the actual needs of the industry, helping to create a workforce that is ready for the future.
--   **Fostering Economic Growth:** By upskilling talent and connecting individuals to better job opportunities, we contribute to local and continental economic development.
--   **Democratizing Career Guidance:** Making high-quality, personalized career coaching accessible to everyone, regardless of their background or location.
-
-## Sustainable Development Goals
-
-### 🇺🇳 Alignment with UN SDG 4: Quality Education
-
-This project directly contributes to **Target 4.4** of the UN Sustainable Development Goals:
-
-> *"By 2030, substantially increase the number of youth and adults who have relevant skills, including technical and vocational skills, for employment, decent jobs and entrepreneurship."*
-
-PathFinder AI achieves this by providing a scalable and accessible platform for personalized learning and skill acquisition, making technical education more attainable and directly linking it to employment outcomes.
+-   **Freemium:**
+    -   3 free AI-generated roadmaps.
+    -   Access to unverified mentors and communities.
+    -   Basic progress tracking.
+-   **Premium (Pro Plan):**
+    -   Unlimited roadmaps and advanced learning analytics.
+    -   Access to a network of verified mentors.
+-   **One-Off Purchases:**
+    -   Buy additional roadmaps without a subscription.
+-   **Ecosystem Fees:**
+    -   Mentors can pay a small fee to get verified and offer paid group sessions.
+    -   Organizations (NGOs, startups) can pay to create "verified communities" on the platform.
 
 ## 🚀 Tech Stack
 
@@ -45,23 +49,15 @@ PathFinder AI achieves this by providing a scalable and accessible platform for 
 ## 🛠️ Getting Started
 
 ### 1. Install Dependencies
-
-First, install the necessary packages using npm:
-
 ```bash
 npm install
 ```
 
 ### 2. Set Up Environment Variables
-
-This project requires environment variables for Firebase and Paystack integration.
-
-Create a `.env` file in the root of your project and add the following variables.
+Create a `.env` file in your project root.
 
 #### Firebase
-
-Your Firebase configuration can be found in your Firebase project settings. Copy the config object values into your `.env` file.
-
+Copy your Firebase web app configuration into `.env`.
 ```env
 # Firebase
 NEXT_PUBLIC_FIREBASE_API_KEY=AIza...
@@ -73,47 +69,26 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:...
 ```
 
 #### Paystack
-
-You will need to create two subscription plans (monthly and annual) in your Paystack dashboard. You should also enable automated email receipts in your Paystack settings to ensure users receive them after payment.
-
-```env
-# Paystack Public Key
-NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_...
-
-# Paystack Plan Codes (from your dashboard)
-NEXT_PUBLIC_PAYSTACK_MONTHLY_PLAN_CODE=PLN_...
-NEXT_PUBLIC_PAYSTACK_ANNUAL_PLAN_CODE=PLN_...
-```
+Create product/payment links in your Paystack dashboard. You will add these links directly to the pricing page component. For post-payment redirection, set the redirect URL in your Paystack dashboard to point to `/payment/complete` (e.g., `https://your-domain.com/payment/complete`).
 
 #### Push Notifications (VAPID Keys)
-
-Generate VAPID keys to enable push notifications.
-
 ```bash
 npx web-push generate-vapid-keys
 ```
-
-Add the public key to your `.env` file. The private key should be stored securely on your backend for sending notifications in a production environment.
-
+Add the public key to your `.env` file.
 ```env
 # VAPID Public Key
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=BA...
 ```
 
 ### 3. Run the Development Server
-
-Start the Next.js development server:
-
 ```bash
 npm run dev
 ```
-
 The application will be available at [http://localhost:9002](http://localhost:9002).
 
 ### 4. Run the Genkit AI Flows
-
-To enable the AI features, you need to run the Genkit development server in a separate terminal:
-
+In a separate terminal, run the Genkit development server:
 ```bash
 npm run genkit:dev
 ```

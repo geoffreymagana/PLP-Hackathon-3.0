@@ -1,13 +1,14 @@
+
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateRoadmap, type RoadmapGenerationOutput } from "@/ai/flows/roadmap-generation";
-import { Crown, Loader2, Save } from "lucide-react";
+import { Crown, Loader2, Save, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
@@ -17,6 +18,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { sendModuleCompletionNotification } from "@/services/notification-service";
 
 type UserProfile = {
   skills: string;
@@ -26,6 +28,7 @@ type UserProfile = {
   savedRoadmaps?: any[];
   completedMilestones?: Record<string, Record<string, boolean>>;
   isProUser?: boolean;
+  roadmapLimit?: number;
 };
 
 type RoadmapData = RoadmapGenerationOutput & { career: string; createdAt: string; completedMilestones?: Record<string, Record<string, boolean>> };
@@ -57,6 +60,7 @@ function RoadmapSkeleton() {
 }
 
 function RoadmapDisplay() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const career = searchParams.get("career");
   
@@ -92,6 +96,15 @@ function RoadmapDisplay() {
     });
     return () => unsubscribe();
   }, [career]);
+  
+  useEffect(() => {
+      // After a successful one-off payment, the user is redirected back here.
+      // We check for the payment success flag and attempt to save the roadmap.
+      if (searchParams.get('payment') === 'success' && roadmapData && !isAlreadySaved) {
+          handleSave();
+      }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, roadmapData]);
 
   useEffect(() => {
     if (!career) return;
@@ -111,6 +124,13 @@ function RoadmapDisplay() {
             }
             setIsAlreadySaved(true);
         } else {
+            const roadmapLimit = userProfile.roadmapLimit || 3;
+            // Check if user has reached their free/purchased roadmap limit
+            if (!userProfile.isProUser && (userProfile.savedRoadmaps?.length || 0) >= roadmapLimit) {
+                 setError("You have reached your roadmap limit. Please upgrade to Pro or purchase a single roadmap to create more.");
+                 setIsLoading(false);
+                 return;
+            }
             try {
                 const data = await generateRoadmap({
                     careerPath: career,
@@ -138,7 +158,6 @@ function RoadmapDisplay() {
   
   useEffect(() => {
     if (roadmapData) {
-      // Logic to set default open accordion item, but we won't close others automatically
       if(openAccordionItems.length === 0){
         const firstUnlockedNotCompletedStep = roadmapData.roadmap.findIndex((step, index) => {
             const unlocked = isStepUnlocked(index, roadmapData.roadmap, completedMilestones);
@@ -149,7 +168,6 @@ function RoadmapDisplay() {
         if (firstUnlockedNotCompletedStep !== -1) {
             setOpenAccordionItems([`item-${firstUnlockedNotCompletedStep}`]);
         } else if (roadmapData.roadmap.length > 0) {
-            // If all are completed, open the first one
             setOpenAccordionItems(['item-0']);
         }
       }
@@ -165,9 +183,10 @@ function RoadmapDisplay() {
     
     const savedRoadmaps = userProfile.savedRoadmaps || [];
     const existingRoadmapIndex = savedRoadmaps.findIndex((r: any) => r.career === career);
+    const roadmapLimit = userProfile.roadmapLimit || 3;
 
     // Check for save limit if user is not pro and is saving a new roadmap
-    if (!userProfile.isProUser && savedRoadmaps.length >= 3 && existingRoadmapIndex === -1) {
+    if (!userProfile.isProUser && savedRoadmaps.length >= roadmapLimit && existingRoadmapIndex === -1) {
         setShowUpgradeDialog(true);
         return;
     }
@@ -203,14 +222,17 @@ function RoadmapDisplay() {
   };
 
   const handleCheckboxChange = (stepIndex: number, milestoneIndex: number, checked: boolean) => {
-    setCompletedMilestones(prev => {
-      const newCompleted = { ...prev };
-      if (!newCompleted[stepIndex]) {
+    const newCompleted = { ...completedMilestones };
+    if (!newCompleted[stepIndex]) {
         newCompleted[stepIndex] = {};
-      }
-      newCompleted[stepIndex][milestoneIndex] = checked;
-      return newCompleted;
-    });
+    }
+    newCompleted[stepIndex][milestoneIndex] = checked;
+    setCompletedMilestones(newCompleted);
+
+    // Check if the whole step is completed
+    if (roadmapData?.roadmap[stepIndex].milestones.every((_, mIndex) => newCompleted[stepIndex]?.[mIndex])) {
+        sendModuleCompletionNotification(roadmapData.roadmap[stepIndex].step, roadmapData.career);
+    }
   };
 
   if (isLoading) {
@@ -218,7 +240,19 @@ function RoadmapDisplay() {
   }
 
   if (error) {
-    return <div className="text-destructive text-center p-8">{error}</div>;
+    return (
+        <div className="text-center p-8 space-y-4">
+            <h2 className="text-xl font-semibold text-destructive">{error}</h2>
+            <div className="flex gap-4 justify-center">
+                <Link href="/pricing">
+                    <Button><Crown className="mr-2"/>Upgrade to Pro</Button>
+                </Link>
+                 <Link href={`/checkout?plan=one-off&career=${career}`}>
+                    <Button variant="secondary"><ShoppingCart className="mr-2" />Buy This Roadmap ($2)</Button>
+                </Link>
+            </div>
+        </div>
+    );
   }
   
   if (!roadmapData || !career) {
@@ -234,19 +268,27 @@ function RoadmapDisplay() {
     <AlertDialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Upgrade to Pro to Save More Roadmaps</AlertDialogTitle>
+                <AlertDialogTitle>Unlock More Roadmaps</AlertDialogTitle>
                 <AlertDialogDescription>
-                    You've reached your limit of 3 saved roadmaps on the free plan. Upgrade to Pro to save unlimited roadmaps and unlock all features.
+                    You've reached your saved roadmap limit. Upgrade to Pro for unlimited saves or make a one-time purchase for this specific roadmap.
                 </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>Maybe Later</AlertDialogCancel>
+            <AlertDialogFooter className="flex-col sm:flex-col sm:space-x-0 gap-2">
                 <AlertDialogAction asChild>
-                    <Link href="/settings">
+                    <Link href="/pricing">
                         <Crown className="mr-2"/>
-                        Upgrade Now
+                        Upgrade to Pro
                     </Link>
                 </AlertDialogAction>
+                <AlertDialogAction asChild>
+                    <Link href={`/checkout?plan=one-off&career=${career}`}>
+                        <Button variant="secondary" className="w-full">
+                            <ShoppingCart className="mr-2"/>
+                            Buy Just This Roadmap ($2)
+                        </Button>
+                    </Link>
+                </AlertDialogAction>
+                <AlertDialogCancel className="mt-2">Maybe Later</AlertDialogCancel>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
@@ -254,7 +296,7 @@ function RoadmapDisplay() {
     <div className="space-y-8">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Your Roadmap: {career}</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">{career}</h1>
           <p className="text-muted-foreground">Track your progress towards becoming a {career}.</p>
         </div>
         <Button onClick={handleSave} disabled={isSaving}>
@@ -291,7 +333,7 @@ function RoadmapDisplay() {
                 <Card className="overflow-hidden">
                   <AccordionTrigger className="w-full bg-muted/50 px-6 py-4 hover:no-underline data-[state=open]:border-b">
                     <div className="flex items-center justify-between w-full">
-                      <CardTitle className="text-xl text-left">{`Step ${index + 1}: ${step.step}`}</CardTitle>
+                      <CardTitle className="text-xl text-left">{step.step}</CardTitle>
                       {unlocked ? <Unlock className="text-green-500" /> : <Lock className="text-red-500" />}
                     </div>
                   </AccordionTrigger>
