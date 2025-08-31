@@ -11,7 +11,7 @@ import { BadgeCheck, Crown, ExternalLink, Lock, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -240,7 +240,26 @@ const CommunityCard = ({ community }: { community: typeof communities[0] }) => (
     </Card>
 );
 
-export default function ConnectPage() {
+const ConnectSkeleton = () => (
+    <div className="p-4 md:p-8 space-y-8 animate-pulse">
+        <header className="space-y-2">
+            <Skeleton className="h-10 w-1/3" />
+            <Skeleton className="h-4 w-2/3" />
+        </header>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <Skeleton className="h-12 w-full sm:w-48" />
+            <Skeleton className="h-12 flex-1" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[400px] w-full" />
+        </div>
+    </div>
+);
+
+
+function ConnectPageContent() {
     const searchParams = useSearchParams();
     const [searchTerm, setSearchTerm] = useState('');
     const defaultTab = searchParams.get('tab') === 'communities' ? 'communities' : 'mentors';
@@ -331,4 +350,12 @@ export default function ConnectPage() {
     );
 }
 
+
+export default function ConnectPage() {
+    return (
+        <Suspense fallback={<ConnectSkeleton />}>
+            <ConnectPageContent />
+        </Suspense>
+    )
+}
     
