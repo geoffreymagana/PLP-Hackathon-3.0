@@ -5,8 +5,8 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { UserNav } from "./user-nav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { User } from "lucide-react";
 
 type BottomNavProps = {
     items: {
@@ -43,9 +43,10 @@ export function BottomNav({ items }: BottomNavProps) {
                         </Link>
                     );
                 })}
-                <div className="inline-flex flex-col items-center justify-center group">
-                     <UserNav />
-                </div>
+                <Link href="/profile" className="inline-flex flex-col items-center justify-center px-5 group text-muted-foreground hover:text-primary">
+                     <User className="h-5 w-5 mb-1" />
+                     <span className="text-xs">Profile</span>
+                </Link>
             </div>
         </div>
     );

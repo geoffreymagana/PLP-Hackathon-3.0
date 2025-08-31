@@ -3,8 +3,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Bot, Compass, GitMerge, LayoutDashboard, PanelLeft, User, Users } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Bot, Compass, GitMerge, LayoutDashboard, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,19 +12,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { UserNav } from "@/components/user-nav";
 import { Logo } from "@/components/logo";
-import { Button } from "./ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { BottomNav } from "./bottom-nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  
-  const isOnboarding = searchParams.get('onboarding') === 'true' || pathname === '/signup' || pathname === '/login';
 
   const navItems = [
     { href: "/", icon: <LayoutDashboard />, label: "Dashboard" },
@@ -36,10 +30,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   
   const mobileNavItems = navItems.filter(item => item.href !== '/connect');
 
-
-  if (isOnboarding) {
-    return <main>{children}</main>;
-  }
 
   return (
     <div className="flex min-h-screen w-full bg-background">

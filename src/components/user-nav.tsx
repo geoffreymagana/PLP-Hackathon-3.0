@@ -18,7 +18,6 @@ import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 import { Skeleton } from "./ui/skeleton";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -34,7 +33,6 @@ export function UserNav() {
   const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -105,23 +103,17 @@ export function UserNav() {
   };
 
   if (isLoading) {
-    if (isMobile) {
-        return <Skeleton className="h-10 w-10 rounded-full" />
-    }
     return <Skeleton className="h-12 w-full" />;
   }
 
   if (!userProfile) {
-    return null;
-  }
-  
-  if (isMobile) {
     return (
-       <Link href="/profile" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group text-muted-foreground hover:text-primary h-full w-full">
-            <User className="h-5 w-5 mb-1" />
-            <span className="text-xs">Profile</span>
-       </Link>
-    )
+        <Link href="/login">
+            <Button variant="outline" className="w-full">
+                Login
+            </Button>
+        </Link>
+    );
   }
 
   return (
