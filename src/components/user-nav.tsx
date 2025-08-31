@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -37,6 +37,10 @@ export function UserNav() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (!isFirebaseConfigured) {
+        setIsLoading(false);
+        return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
             const docRef = doc(db, "users", user.uid);

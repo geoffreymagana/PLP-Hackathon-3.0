@@ -1,21 +1,38 @@
+
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDOU76hQDJPQh2zXmxAGnzkPwb07RuKl8M",
-  authDomain: "pathfinder-ai-slfsq.firebaseapp.com",
-  projectId: "pathfinder-ai-slfsq",
-  storageBucket: "pathfinder-ai-slfsq.appspot.com",
-  messagingSenderId: "1012247995163",
-  appId: "1:1012247995163:web:96eed302e3367bcca929be"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase for client-side usage, ensuring it's only done once.
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
 
-export { app, auth, db };
+// Check if all required Firebase config keys are present
+const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId;
+
+if (isFirebaseConfigured) {
+    // Initialize Firebase for client-side usage, ensuring it's only done once.
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+} else {
+    console.warn("Firebase configuration is missing or incomplete. Firebase services will be disabled.");
+    // Provide mock/dummy objects to prevent crashes when config is missing
+    app = {} as FirebaseApp;
+    auth = {} as Auth;
+    db = {} as Firestore;
+}
+
+
+export { app, auth, db, isFirebaseConfigured };

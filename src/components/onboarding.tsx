@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { updateProfile } from "firebase/auth";
@@ -87,6 +87,17 @@ const ProfileStep = ({ onBack, onFinish }: { onBack: () => void, onFinish: (valu
 
   const handleSubmit = async (values: OnboardingData) => {
     setIsLoading(true);
+    
+    if (!isFirebaseConfigured) {
+        toast({
+            variant: "destructive",
+            title: "Firebase Not Configured",
+            description: "Cannot save profile. Please configure Firebase first.",
+        });
+        setIsLoading(false);
+        return;
+    }
+
     const user = auth.currentUser;
 
     if (!user) {
@@ -219,7 +230,7 @@ const ProfileStep = ({ onBack, onFinish }: { onBack: () => void, onFinish: (valu
                                 <ArrowLeft className="mr-2" />
                                 Back
                             </Button>
-                            <Button type="submit" disabled={isLoading}>
+                            <Button type="submit" disabled={isLoading || !isFirebaseConfigured}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Finish
                                 <ArrowRight className="ml-2" />

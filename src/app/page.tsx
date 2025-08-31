@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Onboarding } from "@/components/onboarding";
 import { Progress } from "@/components/ui/progress";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { DashboardCards } from "@/components/dashboard-cards";
@@ -175,6 +175,11 @@ function DashboardView() {
   const [loadingText, setLoadingText] = useState(loadingTexts[0]);
 
   useEffect(() => {
+    if (!isFirebaseConfigured) {
+        setIsProfileLoading(false);
+        // Maybe show a banner to the user to configure Firebase
+        return;
+    }
     const fetchUserProfile = async (user: any) => {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
@@ -337,4 +342,3 @@ export default function DashboardPage() {
     );
 }
 
-    

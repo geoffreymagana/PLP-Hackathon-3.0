@@ -12,8 +12,11 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
+
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -74,44 +77,56 @@ export default function LoginPage() {
                     <CardDescription>Sign in to continue your journey with PathFinder AI</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form className="space-y-4" onSubmit={handleLogin}>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
-                        </div>
-                        <div className="space-y-2 relative">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
-                                <Link href="#" className="text-sm font-medium text-primary hover:underline">
-                                    Forgot password?
-                                </Link>
+                    {!isFirebaseConfigured ? (
+                         <Alert>
+                            <Terminal className="h-4 w-4" />
+                            <AlertTitle>Firebase Not Configured</AlertTitle>
+                            <AlertDescription>
+                                Authentication is currently disabled. Please add your Firebase configuration to the <code>.env</code> file to enable login.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                    <>
+                        <form className="space-y-4" onSubmit={handleLogin}>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
                             </div>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-1 top-7 h-7 w-7"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                            <div className="space-y-2 relative">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Link href="#" className="text-sm font-medium text-primary hover:underline">
+                                        Forgot password?
+                                    </Link>
+                                </div>
+                                <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-7 h-7 w-7"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                                </Button>
+                            </div>
+                            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Sign in with Email
                             </Button>
+                        </form>
+                        <div className="my-6 flex items-center">
+                            <Separator className="flex-1" />
+                            <span className="px-4 text-sm text-muted-foreground">OR</span>
+                            <Separator className="flex-1" />
                         </div>
-                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Sign in with Email
+                        <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
+                            <GoogleIcon className="mr-3" />
+                            Sign in with Google
                         </Button>
-                    </form>
-                    <div className="my-6 flex items-center">
-                        <Separator className="flex-1" />
-                        <span className="px-4 text-sm text-muted-foreground">OR</span>
-                        <Separator className="flex-1" />
-                    </div>
-                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
-                        <GoogleIcon className="mr-3" />
-                        Sign in with Google
-                    </Button>
+                    </>
+                    )}
                     <div className="mt-6 text-center text-sm">
                         Don&apos;t have an account?{' '}
                         <Link href="/signup" className="font-medium text-primary hover:underline">

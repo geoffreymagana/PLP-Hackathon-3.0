@@ -231,8 +231,7 @@ export default function ProgressPage() {
     const { totalMilestones, totalMilestonesCompleted, roadmapsInProgress, recentMilestones, acquiredSkills, overallProgressChartData, skillsDistributionChartData, roadmapComparisonChartData } = progressData;
     const completionRate = totalMilestones > 0 ? Math.round(totalMilestonesCompleted / totalMilestones * 100) : 0;
     
-    // For mobile, show only top 8 skills, for desktop show more
-    const finalSkillsData = isMobile ? skillsDistributionChartData.slice(0, 8) : skillsDistributionChartData;
+    const finalSkillsData = skillsDistributionChartData.slice(0, 8);
 
 
     const AdvancedAnalytics = () => (
@@ -245,7 +244,7 @@ export default function ProgressPage() {
                 <Card className="lg:col-span-3">
                     <CardHeader>
                         <CardTitle>Skills Distribution</CardTitle>
-                        <CardDescription>Visualizing your skill profile across different domains.</CardDescription>
+                        <CardDescription>A spider chart showing your top 8 skill areas.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={skillsRadarChartConfig} className="h-80 w-full">
@@ -430,5 +429,3 @@ export default function ProgressPage() {
         </div>
     );
 }
-
-    

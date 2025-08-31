@@ -3,7 +3,7 @@
 
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,26 +110,33 @@ function CheckoutPageContent() {
   };
 
   const onSuccess = useCallback(async (reference: any) => {
-    // In a real app, you would verify the transaction on your backend via webhooks
-    // before granting access to prevent fraud. This is a crucial step for production.
-    // For this prototype, we'll optimistically grant access on client-side success.
-    console.log("Paystack success reference:", reference);
-    setIsProcessingPayment(false);
-
+    setIsProcessingPayment(true);
     if (auth.currentUser) {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      // In a real app, you would also save the subscription ID and customer ID from Paystack.
-      await setDoc(userDocRef, { isProUser: true, subscriptionStatus: 'active' }, { merge: true });
-      
-      toast({
-        title: "Upgrade Successful!",
-        description: "Your subscription is now active.",
-        variant: "default",
-      });
-      
-      router.push("/settings"); // Redirect to settings to see the new status
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        // Save transaction to a subcollection
+        const transactionRef = collection(db, "users", auth.currentUser.uid, "transactions");
+        await addDoc(transactionRef, {
+            planName: selectedPlan.name,
+            amount: selectedPlan.amount,
+            currency: selectedPlan.currency,
+            reference: reference.reference,
+            status: reference.status,
+            date: new Date().toISOString(),
+        });
+        
+        // Update user to be a pro user
+        await setDoc(userDocRef, { isProUser: true, subscriptionStatus: 'active' }, { merge: true });
+        
+        toast({
+            title: "Upgrade Successful!",
+            description: "Your subscription is now active.",
+            variant: "default",
+        });
+        
+        router.push("/settings"); // Redirect to settings to see new status and transaction
     }
-  }, [router, toast]);
+    setIsProcessingPayment(false);
+  }, [router, toast, selectedPlan]);
 
   const onClose = useCallback(() => {
     console.log("Paystack modal closed");
@@ -210,7 +217,7 @@ function CheckoutPageContent() {
             <CardContent>
                 <Button
                     onClick={handlePayment}
-                    disabled={isProcessingPayment || !isPaystackConfigured}
+                    disabled={isProcessingPayment || !isPaystackConfigured || !userProfile}
                     className="w-full h-12 rounded-md font-semibold transition-colors"
                 >
                     {isProcessingPayment ? (

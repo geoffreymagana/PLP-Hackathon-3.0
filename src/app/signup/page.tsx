@@ -9,12 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/logo";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Terminal } from "lucide-react";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -77,48 +79,60 @@ export default function SignupPage() {
                     <CardDescription>Join PathFinder AI to start your career journey</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form className="space-y-4" onSubmit={handleSignup}>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
-                        </div>
-                        <div className="space-y-2 relative">
-                            <Label htmlFor="password">Password</Label>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-1 top-7 h-7 w-7"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                    {!isFirebaseConfigured ? (
+                        <Alert>
+                            <Terminal className="h-4 w-4" />
+                            <AlertTitle>Firebase Not Configured</AlertTitle>
+                            <AlertDescription>
+                                Sign-up is currently disabled. Please add your Firebase configuration to the <code>.env</code> file to enable user registration.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                    <>
+                        <form className="space-y-4" onSubmit={handleSignup}>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required />
+                            </div>
+                            <div className="space-y-2 relative">
+                                <Label htmlFor="password">Password</Label>
+                                <Input id="password" name="password" type={showPassword ? "text" : "password"} required />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-7 h-7 w-7"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                                </Button>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox id="terms" required/>
+                                <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
+                                    I agree to the{' '}
+                                    <Link href="/terms" className="font-medium text-primary hover:underline">
+                                        Terms of Use
+                                    </Link>
+                                </Label>
+                            </div>
+                            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Create Account
                             </Button>
+                        </form>
+                        <div className="my-6 flex items-center">
+                            <Separator className="flex-1" />
+                            <span className="px-4 text-sm text-muted-foreground">OR</span>
+                            <Separator className="flex-1" />
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox id="terms" required/>
-                            <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
-                                I agree to the{' '}
-                                <Link href="/terms" className="font-medium text-primary hover:underline">
-                                    Terms of Use
-                                </Link>
-                            </Label>
-                        </div>
-                        <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
-                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Account
+                        <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
+                            <GoogleIcon className="mr-3" />
+                            Sign up with Google
                         </Button>
-                    </form>
-                    <div className="my-6 flex items-center">
-                        <Separator className="flex-1" />
-                        <span className="px-4 text-sm text-muted-foreground">OR</span>
-                        <Separator className="flex-1" />
-                    </div>
-                    <Button onClick={handleGoogleLogin} className="w-full h-12 text-base" variant="outline">
-                        <GoogleIcon className="mr-3" />
-                        Sign up with Google
-                    </Button>
+                    </>
+                    )}
                     <div className="mt-6 text-center text-sm">
                         Already have an account?{' '}
                         <Link href="/login" className="font-medium text-primary hover:underline">

@@ -36,6 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { BillingHistory } from "@/components/billing-history";
 
 const profileFormSchema = z.object({
   displayName: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, { message: "Name must be less than 50 characters." }),
@@ -359,6 +360,7 @@ export default function SettingsPage() {
                     </Button>
                 </CardFooter>
             </Card>
+            <BillingHistory />
         </div>
 
         <div className="space-y-8">
@@ -366,9 +368,9 @@ export default function SettingsPage() {
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle>Billing</CardTitle>
+                            <CardTitle>Subscription</CardTitle>
                             <CardDescription>
-                                Manage your subscription.
+                                Manage your plan.
                             </CardDescription>
                         </div>
                         {userProfile?.isProUser && <Crown className="text-primary"/>}
