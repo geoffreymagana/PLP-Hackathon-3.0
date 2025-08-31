@@ -4,10 +4,8 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function NotFound() {
-    const router = useRouter();
     return (
         <div className="flex flex-col items-center justify-center min-h-screen text-center p-4 bg-background">
             <div className="max-w-md w-full">
@@ -17,11 +15,9 @@ export default function NotFound() {
                     Oops! The page you are looking for does not exist. It might have been moved or deleted.
                 </p>
                 <div className="mt-8 flex justify-center gap-4">
-                     <Button onClick={() => router.back()} variant="outline">
-                        <ArrowLeft className="mr-2" /> Go Back
-                    </Button>
                     <Link href="/">
                         <Button>
+                            <ArrowLeft className="mr-2" />
                             Return to Dashboard
                         </Button>
                     </Link>
