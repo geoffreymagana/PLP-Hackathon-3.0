@@ -1,11 +1,7 @@
-
 "use client";
 
-import type { Metadata } from "next";
 import "./globals.css";
-import { AppShell } from "@/components/app-shell";
 import { Toaster } from "@/components/ui/toaster";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect } from "react";
 
 // Metadata cannot be defined in a client component, so we move it to a higher-level layout if needed
@@ -44,9 +40,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
-        <SidebarProvider>
-            <AppShell>{children}</AppShell>
-        </SidebarProvider>
+        {children}
         <Toaster />
       </body>
     </html>
