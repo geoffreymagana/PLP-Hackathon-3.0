@@ -1,3 +1,4 @@
+
 "use client";
 
 import "./globals.css";
@@ -27,16 +28,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>PathFinder AI</title>
-        <meta name="description" content="AI-powered career guidance for the African job market." />
-        <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <meta name="theme-color" content="#6d28d9" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <title key="title">PathFinder AI</title>
+        <meta name="description" content="AI-powered career guidance for the African job market." key="description" />
+        <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" key="manifest" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" key="favicon" />
+        <meta name="theme-color" content="#6d28d9" key="theme-color" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" key="preconnect-fonts" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" key="preconnect-gstatic" />
         <link
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
           rel="stylesheet"
+          key="font-space-grotesk"
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>

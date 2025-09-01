@@ -79,13 +79,16 @@ export default function LoginPage() {
                 // New user, go to onboarding
                 router.push('/onboarding');
             }
-        } catch (error: any) {
+        } catch (error: any)
+        {
             console.error("Google login failed:", error);
             let description = "An unexpected error occurred. Please try again.";
             if (error.code === 'auth/popup-closed-by-user') {
                 description = "The sign-in popup was closed before completion.";
             } else if (error.code === 'auth/account-exists-with-different-credential') {
                 description = "An account already exists with the same email address but different sign-in credentials.";
+            } else if (error.code === 'auth/unauthorized-domain') {
+                 description = "This app's domain is not authorized for Google Sign-In. Please contact the administrator.";
             }
             toast({
                 variant: "destructive",
@@ -120,7 +123,7 @@ export default function LoginPage() {
                     <form className="space-y-4" onSubmit={handleLogin}>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading}/>
+                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading} autoComplete="email" />
                         </div>
                         <div className="space-y-2 relative">
                             <div className="flex items-center justify-between">
@@ -129,7 +132,7 @@ export default function LoginPage() {
                                     Forgot password?
                                 </Link>
                             </div>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading}/>
+                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading} autoComplete="current-password" />
                             <Button
                                 type="button"
                                 variant="ghost"

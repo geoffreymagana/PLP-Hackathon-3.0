@@ -48,12 +48,15 @@ type UserProfile = {
     }[];
 };
 
+const SKILLS_TRUNCATE_LIMIT = 10;
+
 export default function BecomeMentorPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [newSkill, setNewSkill] = useState("");
+  const [showAllSkills, setShowAllSkills] = useState(false);
 
   const form = useForm<MentorFormValues>({
     resolver: zodResolver(mentorFormSchema),
@@ -67,6 +70,7 @@ export default function BecomeMentorPage() {
   });
 
   const expertiseSkills = form.watch("expertise");
+  const displayedSkills = showAllSkills ? expertiseSkills : expertiseSkills.slice(0, SKILLS_TRUNCATE_LIMIT);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -235,8 +239,8 @@ export default function BecomeMentorPage() {
                           />
                       </FormControl>
                       <div className="flex flex-wrap gap-2 pt-2">
-                        {expertiseSkills.map((skill) => (
-                           <Badge key={skill} variant="secondary" className="flex items-center gap-1">
+                        {displayedSkills.map((skill) => (
+                           <Badge key={skill} variant="secondary" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                             {skill}
                             <button onClick={() => removeSkill(skill)} type="button">
                               <X className="h-3 w-3" />
@@ -244,6 +248,16 @@ export default function BecomeMentorPage() {
                           </Badge>
                         ))}
                       </div>
+                       {expertiseSkills.length > SKILLS_TRUNCATE_LIMIT && (
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="p-0 h-auto text-sm"
+                          onClick={() => setShowAllSkills(!showAllSkills)}
+                        >
+                          {showAllSkills ? 'Show less' : `Show all ${expertiseSkills.length} skills...`}
+                        </Button>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -311,5 +325,3 @@ export default function BecomeMentorPage() {
     </div>
   );
 }
-
-    

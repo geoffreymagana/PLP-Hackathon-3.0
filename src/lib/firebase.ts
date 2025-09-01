@@ -1,7 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, type Auth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
@@ -43,4 +43,4 @@ if (isFirebaseConfigured) {
 }
 
 
-export { app, auth, db, storage, isFirebaseConfigured, provider, signInWithPopup };
+export { app, auth, db, storage, isFirebaseConfigured, provider };

@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Star } from "lucide-react";
+import { Check, Crown, Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 const tiers = [
   {
     name: "Basic",
+    planId: "basic",
     price: "Free",
     priceDetails: "Forever",
     features: [
@@ -28,8 +29,9 @@ const tiers = [
   },
   {
     name: "Pro Monthly",
+    planId: "pro-monthly",
     price: "$5",
-    priceDetails: "per month (approx)",
+    priceDetails: "per month",
     features: [
       "Everything in Basic, plus:",
       "Unlimited AI-Generated Roadmaps",
@@ -40,14 +42,15 @@ const tiers = [
     ],
     buttonText: "Upgrade to Monthly",
     buttonVariant: "default",
-    href: "https://paystack.shop/pay/g-bn1i0ulh", // Direct Paystack Link
+    href: "/checkout?plan=pro-monthly", 
     isFeatured: true,
     disabled: false,
   },
   {
     name: "Pro Annual",
+    planId: "pro-annual",
     price: "$50",
-    priceDetails: "per year (approx)",
+    priceDetails: "per year",
     features: [
       "Everything in Pro Monthly",
       "2 Months Free (Save 16%)",
@@ -55,7 +58,7 @@ const tiers = [
     ],
     buttonText: "Upgrade to Annual",
     buttonVariant: "outline",
-    href: "https://paystack.shop/pay/4dedez6h-8", // Placeholder, update with actual link
+    href: "/checkout?plan=pro-annual",
     isFeatured: false,
     disabled: false,
   },
@@ -79,7 +82,7 @@ export default function PricingPage() {
             )}
             <CardHeader className="items-center text-center">
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                {tier.name === "Pro Monthly" ? <Star className="text-primary" /> : <Crown />}
+                 {tier.name.includes("Pro") ? <Crown className="text-primary" /> : <Star />}
                 {tier.name}
               </CardTitle>
               <p className="text-4xl font-bold">{tier.price}</p>
@@ -96,7 +99,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Link href={tier.href} className="w-full" target={tier.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">
+              <Link href={tier.href} className="w-full">
                 <Button className="w-full" variant={tier.buttonVariant as any} disabled={tier.disabled}>
                   {tier.buttonText}
                 </Button>
@@ -119,16 +122,15 @@ export default function PricingPage() {
             <p className="text-muted-foreground">per additional roadmap</p>
           </CardContent>
           <CardFooter className="w-full px-4">
-            <Link href="https://paystack.shop/pay/4dedez6h-8" className="w-full">
-              <Button variant="default" className="w-full">
-                Pay Now
-              </Button>
+            <Link href="/checkout?plan=one-off" className="w-full">
+                <Button variant="secondary" className="w-full">
+                    <ShoppingCart className="mr-2"/>
+                    Purchase Credit
+                </Button>
             </Link>
           </CardFooter>
-
         </Card>
       </div>
-
 
       <div className="text-center text-muted-foreground text-sm max-w-2xl mx-auto pt-8">
         <p className="font-bold">A note on our mission:</p>

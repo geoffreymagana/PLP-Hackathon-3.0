@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, Timestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import {
   Card,
@@ -23,7 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { Download } from "lucide-react";
 import Link from "next/link";
 
 type Transaction = {
@@ -33,7 +33,7 @@ type Transaction = {
   currency: string;
   reference: string;
   status: string;
-  date: string;
+  date: Timestamp;
 };
 
 export function BillingHistory() {
@@ -89,7 +89,7 @@ export function BillingHistory() {
               {transactions.map((tx) => (
                 <TableRow key={tx.id}>
                   <TableCell>
-                    {new Date(tx.date).toLocaleDateString()}
+                    {tx.date ? tx.date.toDate().toLocaleDateString() : 'N/A'}
                   </TableCell>
                   <TableCell>{tx.planName}</TableCell>
                   <TableCell className="text-right">
@@ -111,13 +111,13 @@ export function BillingHistory() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Link
-                      href={`https://dashboard.paystack.com/#/transactions/${tx.reference}`}
+                      href={`/receipt/${tx.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <Button variant="outline" size="sm">
-                        View
-                        <ExternalLink className="ml-2 h-3 w-3" />
+                        <Download className="mr-2 h-3 w-3" />
+                        Download
                       </Button>
                     </Link>
                   </TableCell>

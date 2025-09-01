@@ -116,11 +116,11 @@ export default function SignupPage() {
                     <form className="space-y-4" onSubmit={handleSignup}>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading}/>
+                            <Input id="email" name="email" type="email" placeholder="user@pathfinder.ai" required disabled={isGoogleLoading} autoComplete="email" />
                         </div>
                         <div className="space-y-2 relative">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading}/>
+                            <Input id="password" name="password" type={showPassword ? "text" : "password"} required disabled={isGoogleLoading} autoComplete="new-password"/>
                             <Button
                                 type="button"
                                 variant="ghost"

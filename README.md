@@ -1,3 +1,4 @@
+
 # PathFinder AI - Your Personal AI Learning Companion
 
 PathFinder AI is a Next.js application designed to provide **personalized, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
@@ -69,7 +70,12 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:...
 ```
 
 #### Paystack
-Create product/payment links in your Paystack dashboard. You will add these links directly to the pricing page component. For post-payment redirection, set the redirect URL in your Paystack dashboard to point to `/payment/complete` (e.g., `https://your-domain.com/payment/complete`).
+Create product/payment links in your Paystack dashboard. For post-payment redirection, set the redirect URL in your Paystack dashboard to point to `/payment/complete` (e.g., `https://your-domain.com/payment/complete`).
+
+#### Google Sign-In
+To enable Google Sign-In, you must add your application's domain to the list of authorized domains in the Firebase console:
+1. Go to the Firebase Console -> Authentication -> Settings -> Authorized Domains.
+2. Click "Add Domain" and enter the domain of your deployed application (e.g., `your-app-name.vercel.app` or `your-custom-domain.com`).
 
 #### Push Notifications (VAPID Keys)
 ```bash

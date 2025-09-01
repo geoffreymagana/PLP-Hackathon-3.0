@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { ArrowRight, Loader2, Sparkles, Wand2, X } from "lucide-react";
+import { ArrowRight, Loader2, Sparkles, Wand2, X, Crown } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,11 @@ import { Progress } from "@/components/ui/progress";
 import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { DashboardCards } from "@/components/dashboard-cards";
+import { DashboardCards } from "@/app/(main)/dashboard-cards";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoadmapCard } from "@/components/roadmap-card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const loadingTexts = [
     "Analyzing your profile...",
@@ -43,6 +45,7 @@ type UserProfile = {
   location: string;
   email?: string;
   savedRoadmaps?: any[];
+  isProUser?: boolean;
 };
 
 const SuggestionsContainer = ({ suggestions }: { suggestions: PersonalizedCareerSuggestionsOutput }) => (
@@ -274,7 +277,16 @@ function DashboardView() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h1>
+        <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h1>
+            {userProfile?.isProUser ? (
+                <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 text-sm">
+                    <Crown className="mr-2 h-4 w-4" /> Pro
+                </Badge>
+            ) : (
+                <Badge variant="secondary" className="text-sm">Basic</Badge>
+            )}
+        </div>
         <p className="text-muted-foreground">
           Welcome back! Here's your personalized learning command center.
         </p>

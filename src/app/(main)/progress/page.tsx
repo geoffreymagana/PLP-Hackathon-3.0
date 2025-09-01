@@ -12,10 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Progress } from "@/components/ui/progress";
 
 type Roadmap = {
   career: string;
@@ -46,7 +45,7 @@ type ProgressData = {
     learningVelocity: number;
     dropOffAnalysis: { career: string, step: string } | null;
     industryDemand: { score: number, trend: 'up' | 'stable' };
-    learningBalance: { hard: number, soft: number };
+    learningBalance: { hard: number; soft: number };
 };
 
 // Mock data/logic for new analytics
@@ -113,8 +112,9 @@ function calculateProgress(userProfile: UserProfile | null): ProgressData {
 
         roadmap.roadmap.forEach(step => {
             step.skills.forEach(skill => {
-                skillsDistribution[skill] = (skillsDistribution[skill] || 0) + 1;
-                if(MOCK_SOFT_SKILLS.includes(skill)){
+                const trimmedSkill = skill.trim();
+                skillsDistribution[trimmedSkill] = (skillsDistribution[trimmedSkill] || 0) + 1;
+                if(MOCK_SOFT_SKILLS.includes(trimmedSkill)){
                     softSkillsCount++;
                 } else {
                     hardSkillsCount++;
@@ -127,7 +127,7 @@ function calculateProgress(userProfile: UserProfile | null): ProgressData {
                 if(isCompleted) {
                     const step = roadmap.roadmap[parseInt(stepIndex)];
                     if (step) {
-                        step.skills.forEach(skill => acquiredSkills.add(skill));
+                        step.skills.forEach(skill => acquiredSkills.add(skill.trim()));
                         const milestoneText = step.milestones[parseInt(milestoneIndex)];
                         if (milestoneText) {
                             recentMilestones.push({ text: milestoneText, career: roadmap.career });
@@ -148,7 +148,7 @@ function calculateProgress(userProfile: UserProfile | null): ProgressData {
         .map(([skill, count]) => ({ skill, count }))
         .sort((a, b) => b.count - a.count);
 
-    const learningVelocity = totalRoadmapsForVelocity > 0 ? totalMilestonesCompleted / (totalDays / totalRoadmapsForVelocity) : 0;
+    const learningVelocity = totalRoadmapsForVelocity > 0 ? totalMilestonesCompleted / totalRoadmapsForVelocity : 0;
     
     // Aggregate industry demand
     const avgIndustryDemand = userProfile.savedRoadmaps.reduce((acc, roadmap) => {
@@ -204,9 +204,21 @@ const skillsRadarChartConfig = {
 const comparisonChartConfig = {
     progress: {
         label: "Progress %",
-        color: "hsl(var(--chart-1))"
+        color: "hsl(var(--primary))"
     }
 } satisfies ChartConfig;
+
+const learningBalanceChartConfig = {
+    hard: {
+        label: "Hard Skills",
+        color: "hsl(var(--primary))",
+    },
+    soft: {
+        label: "Soft Skills",
+        color: "hsl(var(--accent))"
+    }
+} satisfies ChartConfig;
+
 
 function ProgressSkeleton() {
     return (
@@ -306,6 +318,7 @@ export default function ProgressPage() {
     const finalSkillsData = skillsDistributionChartData.slice(0, 8);
     const totalBalance = learningBalance.hard + learningBalance.soft;
     const hardSkillPercentage = totalBalance > 0 ? (learningBalance.hard / totalBalance) * 100 : 0;
+    const softSkillPercentage = totalBalance > 0 ? 100 - hardSkillPercentage : 0;
 
 
     const AdvancedAnalytics = () => (
@@ -322,12 +335,28 @@ export default function ProgressPage() {
                             <CardDescription>Ratio of hard skills vs. soft skills in your roadmaps.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                <Progress value={hardSkillPercentage} className="h-4" />
-                                <div className="flex justify-between text-sm font-medium text-muted-foreground">
-                                    <span>Hard Skills ({Math.round(hardSkillPercentage)}%)</span>
-                                    <span>Soft Skills ({100-Math.round(hardSkillPercentage)}%)</span>
-                                </div>
+                             <ChartContainer config={learningBalanceChartConfig} className="h-10 w-full border rounded-lg">
+                                {totalBalance > 0 ? (
+                                    <BarChart
+                                        accessibilityLayer
+                                        layout="vertical"
+                                        data={[{ name: "balance", hard: learningBalance.hard, soft: learningBalance.soft }]}
+                                        stackOffset="expand"
+                                        margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                                    >
+                                        <XAxis type="number" dataKey="name" hide />
+                                        <YAxis type="category" dataKey="name" hide />
+                                        <Tooltip content={null} cursor={false} />
+                                        <Bar dataKey="hard" fill="var(--color-hard)" stackId="a" radius={[5, 0, 0, 5]} />
+                                        <Bar dataKey="soft" fill="var(--color-soft)" stackId="a" radius={[0, 5, 5, 0]} />
+                                    </BarChart>
+                                ) : (
+                                    <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground">No skill data</div>
+                                )}
+                            </ChartContainer>
+                             <div className="flex justify-between text-sm font-medium text-muted-foreground mt-2">
+                                <span>Hard Skills ({Math.round(hardSkillPercentage)}%)</span>
+                                <span>Soft Skills ({Math.round(softSkillPercentage)}%)</span>
                             </div>
                         </CardContent>
                         <CardFooter>
@@ -402,15 +431,13 @@ export default function ProgressPage() {
                             </CardHeader>
                             <CardContent>
                                 <ChartContainer config={skillsRadarChartConfig} className="h-80 w-full">
-                                <ResponsiveContainer width="100%" height={300}>
                                     <RadarChart data={finalSkillsData}>
                                         <PolarGrid />
                                         <PolarAngleAxis dataKey="skill" tick={{ fontSize: isMobile ? 8 : 12 }} />
                                         <PolarRadiusAxis angle={isMobile ? 90 : 30} tick={!isMobile} domain={[0, 'dataMax + 1']}/>
                                         <Tooltip content={<ChartTooltipContent />} />
-                                        <Radar name="Count" dataKey="count" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
+                                        <Radar name="Count" dataKey="count" stroke="var(--color-count)" fill="var(--color-count)" fillOpacity={0.6} />
                                     </RadarChart>
-                                </ResponsiveContainer>
                                 </ChartContainer>
                             </CardContent>
                         </Card>
@@ -425,15 +452,13 @@ export default function ProgressPage() {
                             </CardHeader>
                             <CardContent>
                                 <ChartContainer config={comparisonChartConfig} className="h-80 w-full">
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <RadarChart data={roadmapComparisonChartData}>
-                                            <PolarGrid />
-                                            <PolarAngleAxis dataKey="career" tick={{ fontSize: isMobile ? 8 : 12 }} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={!isMobile} />
-                                            <Tooltip content={<ChartTooltipContent />} />
-                                            <Radar name="Progress" dataKey="progress" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.6} />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
+                                    <RadarChart data={roadmapComparisonChartData}>
+                                        <PolarGrid />
+                                        <PolarAngleAxis dataKey="career" tick={{ fontSize: isMobile ? 8 : 12, width: 70 }}/>
+                                        <PolarRadiusAxis domain={[0, 100]}/>
+                                        <Tooltip content={<ChartTooltipContent />} />
+                                        <Radar name="Progress" dataKey="progress" stroke="var(--color-progress)" fill="var(--color-progress)" fillOpacity={0.6} />
+                                    </RadarChart>
                                 </ChartContainer>
                             </CardContent>
                         </Card>
@@ -582,5 +607,3 @@ export default function ProgressPage() {
         </div>
     );
 }
-
-    

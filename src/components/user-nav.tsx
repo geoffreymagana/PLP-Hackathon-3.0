@@ -125,7 +125,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-12 w-full justify-start gap-2 px-2"
+          className="relative h-12 w-full justify-start gap-2 px-2 group"
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={userProfile.avatarUrl} alt="User avatar" />
@@ -133,7 +133,7 @@ export function UserNav() {
           </Avatar>
           <div className="flex flex-col items-start truncate">
             <span className="text-sm font-medium truncate">{userProfile.displayName}</span>
-            <span className="text-xs text-muted-foreground truncate">
+            <span className="text-xs text-muted-foreground truncate group-hover:text-white">
               {userProfile.email}
             </span>
           </div>

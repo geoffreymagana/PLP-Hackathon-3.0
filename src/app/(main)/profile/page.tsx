@@ -162,13 +162,13 @@ export default function ProfilePage() {
           <div className="space-y-2">
             <h3 className="font-semibold text-foreground">Skills</h3>
             <div className="flex flex-wrap gap-2">
-              {userProfile.skills?.split(',').map((skill, i) => <Badge key={i} variant="secondary">{skill.trim()}</Badge>)}
+              {userProfile.skills?.split(',').map((skill, i) => <Badge key={i} variant="secondary" className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">{skill.trim()}</Badge>)}
             </div>
           </div>
           <div className="space-y-2">
             <h3 className="font-semibold text-foreground">Interests</h3>
             <div className="flex flex-wrap gap-2">
-              {userProfile.interests?.split(',').map((interest, i) => <Badge key={i} variant="secondary">{interest.trim()}</Badge>)}
+              {userProfile.interests?.split(',').map((interest, i) => <Badge key={i} variant="secondary" className="bg-accent/10 text-accent border-accent/20 hover:bg-accent/20">{interest.trim()}</Badge>)}
             </div>
           </div>
         </CardContent>

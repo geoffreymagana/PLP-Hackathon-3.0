@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Lock, Unlock } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, arrayUnion } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -98,15 +98,6 @@ function RoadmapDisplay() {
   }, [career]);
   
   useEffect(() => {
-      // After a successful one-off payment, the user is redirected back here.
-      // We check for the payment success flag and attempt to save the roadmap.
-      if (searchParams.get('payment') === 'success' && roadmapData && !isAlreadySaved) {
-          handleSave();
-      }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, roadmapData]);
-
-  useEffect(() => {
     if (!career) return;
     if (!userProfile) {
         if(user) setIsLoading(true); // Still waiting for profile
@@ -124,10 +115,11 @@ function RoadmapDisplay() {
             }
             setIsAlreadySaved(true);
         } else {
-            const roadmapLimit = userProfile.roadmapLimit || 3;
-            // Check if user has reached their free/purchased roadmap limit
-            if (!userProfile.isProUser && (userProfile.savedRoadmaps?.length || 0) >= roadmapLimit) {
-                 setError("You have reached your roadmap limit. Please upgrade to Pro or purchase a single roadmap to create more.");
+            // Free users get up to 3 roadmaps. Pro users have no limit.
+            const hasFreeLimit = !userProfile.isProUser && (userProfile.savedRoadmaps?.length || 0) >= 3;
+            
+            if (hasFreeLimit) {
+                 setError("You have reached your free roadmap limit. Please upgrade to Pro or purchase a single roadmap to create more.");
                  setIsLoading(false);
                  return;
             }
@@ -182,11 +174,10 @@ function RoadmapDisplay() {
     }
     
     const savedRoadmaps = userProfile.savedRoadmaps || [];
-    const existingRoadmapIndex = savedRoadmaps.findIndex((r: any) => r.career === career);
-    const roadmapLimit = userProfile.roadmapLimit || 3;
+    const isAlreadyInDb = savedRoadmaps.some((r: any) => r.career === career);
 
     // Check for save limit if user is not pro and is saving a new roadmap
-    if (!userProfile.isProUser && savedRoadmaps.length >= roadmapLimit && existingRoadmapIndex === -1) {
+    if (!userProfile.isProUser && savedRoadmaps.length >= 3 && !isAlreadyInDb) {
         setShowUpgradeDialog(true);
         return;
     }
@@ -196,13 +187,12 @@ function RoadmapDisplay() {
       const userDocRef = doc(db, "users", user.uid);
       const newRoadmapData = { ...roadmapData, completedMilestones };
 
-      if (existingRoadmapIndex > -1) {
-        savedRoadmaps[existingRoadmapIndex] = newRoadmapData;
-      } else {
-        savedRoadmaps.push(newRoadmapData);
-      }
+      const finalRoadmaps = isAlreadyInDb 
+        ? savedRoadmaps.map((r: any) => r.career === career ? newRoadmapData : r)
+        : [...savedRoadmaps, newRoadmapData];
+      
 
-      await setDoc(userDocRef, { savedRoadmaps: savedRoadmaps }, { merge: true });
+      await setDoc(userDocRef, { savedRoadmaps: finalRoadmaps }, { merge: true });
 
       toast({
         title: isAlreadySaved ? "Progress Saved!" : "Roadmap Saved!",
@@ -274,21 +264,19 @@ function RoadmapDisplay() {
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-col sm:flex-col sm:space-x-0 gap-2">
-                <AlertDialogAction asChild>
-                    <Link href="/pricing">
+                 <Link href="/pricing">
+                    <Button className="w-full">
                         <Crown className="mr-2"/>
                         Upgrade to Pro
-                    </Link>
-                </AlertDialogAction>
-                <AlertDialogAction asChild>
-                    <Link href={`/checkout?plan=one-off&career=${career}`}>
-                        <Button variant="secondary" className="w-full">
-                            <ShoppingCart className="mr-2"/>
-                            Buy Just This Roadmap ($2)
-                        </Button>
-                    </Link>
-                </AlertDialogAction>
-                <AlertDialogCancel className="mt-2">Maybe Later</AlertDialogCancel>
+                    </Button>
+                </Link>
+                <Link href={`/checkout?plan=one-off&career=${career}`}>
+                    <Button variant="secondary" className="w-full">
+                        <ShoppingCart className="mr-2"/>
+                        Buy Just This Roadmap ($2)
+                    </Button>
+                </Link>
+                <AlertDialogCancel className="mt-2" onClick={() => setShowUpgradeDialog(false)}>Maybe Later</AlertDialogCancel>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
