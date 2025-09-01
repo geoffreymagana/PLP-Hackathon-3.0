@@ -1,7 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, type Auth, GoogleAuthProvider, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
@@ -32,24 +32,18 @@ if (isFirebaseConfigured) {
     auth = getAuth(app);
     
     // Configure auth settings
-    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-    if (!isLocalhost) {
-        // In production, set the custom domain for auth operations
-        auth.useDeviceLanguage();
-        const vercelDomain = 'pathfinder-ai-eight.vercel.app';
-        auth.config.authDomain = firebaseConfig.authDomain; // Keep Firebase domain for auth flows
-        (auth as any)._canRedirectAuth = true; // Enable auth redirects
-    }
+    auth.useDeviceLanguage();
     
     db = getFirestore(app);
     storage = getStorage(app);
     provider = new GoogleAuthProvider();
     
+    // Configure auth persistence and settings
+    auth.setPersistence(browserLocalPersistence).catch(console.error);
+    
     // Configure Google Auth Provider
     provider.setCustomParameters({
-        prompt: 'select_account',
-        // Add Vercel domain as an allowed redirect URI
-        auth_domain: firebaseConfig.authDomain
+        prompt: 'select_account'
     });
 } else {
     console.warn("Firebase configuration is missing or incomplete. Firebase services will be disabled.");
