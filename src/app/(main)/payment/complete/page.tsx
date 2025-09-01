@@ -24,16 +24,8 @@ type UserProfile = {
 };
 
 
-// This is a client-side mock. In a real app, this should be a server-side function.
-async function verifyPaystackTransaction(reference: string | null): Promise<boolean> {
-  // For MVP purposes, we'll simulate a successful verification if a reference exists.
-  // In a production environment, you MUST call the Paystack verification endpoint from your backend
-  // to prevent users from fraudulently claiming payments.
-  console.log(`Simulating verification for reference: ${reference}`);
-  if (!reference) return false;
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-  return true;
-}
+// Import the verification function from our Paystack lib
+import { verifyPaystackTransaction } from '@/lib/paystack';
 
 function PaymentCompleteContent() {
   const router = useRouter();
@@ -89,6 +81,15 @@ function PaymentCompleteContent() {
           const userDocRef = doc(db, "users", user.uid);
           const transactionRef = collection(db, "users", user.uid, "transactions");
 
+          // Double-check no transaction exists with this reference before proceeding
+          const existingTxQuery = query(transactionRef, where("reference", "==", reference));
+          const existingTx = await getDocs(existingTxQuery);
+          if (!existingTx.empty) {
+            toast({ title: "Already Processed", description: "This payment has already been recorded." });
+            setStatus("already_processed");
+            return;
+          }
+
           // Record the transaction
           await addDoc(transactionRef, {
             planName,
@@ -104,7 +105,17 @@ function PaymentCompleteContent() {
 
           // Update user profile based on plan
           if (planId.startsWith('pro')) {
-            await setDoc(userDocRef, { isProUser: true, subscriptionStatus: 'active', subscriptionPlan: planId }, { merge: true });
+            const now = new Date();
+            const subscriptionEndDate = planId === 'pro-monthly' 
+              ? new Date(now.setMonth(now.getMonth() + 1)) // 1 month from now
+              : new Date(now.setFullYear(now.getFullYear() + 1)); // 1 year from now
+
+            await setDoc(userDocRef, { 
+              isProUser: true, 
+              subscriptionStatus: 'active', 
+              subscriptionPlan: planId,
+              subscriptionEndDate: subscriptionEndDate.toISOString(),
+            }, { merge: true });
              toast({
               title: "Upgrade Successful!",
               description: `Your ${planName} subscription is now active.`,

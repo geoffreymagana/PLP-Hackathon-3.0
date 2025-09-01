@@ -7,21 +7,56 @@
  * @param title The title of the notification.
  * @param options The body and other options for the notification.
  */
-async function sendNotification(title: string, options: NotificationOptions) {
-  if (typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)) {
-    return; // Notifications not supported
+// Extend NotificationOptions to include additional properties
+interface ExtendedNotificationOptions extends NotificationOptions {
+  image?: string;
+  requireInteraction?: boolean;
+  vibrate?: number[];
+}
+
+async function sendNotification(title: string, options: ExtendedNotificationOptions) {
+  if (typeof window === 'undefined') return;
+
+  // Check if notifications are supported
+  if (!('Notification' in window)) {
+    console.log('This browser does not support notifications');
+    return;
   }
 
-  if (Notification.permission !== 'granted') {
-    return; // Permission not granted
+  // Handle permission
+  let permission = Notification.permission;
+  if (permission === "default") {
+    try {
+      permission = await Notification.requestPermission();
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      return;
+    }
+  }
+
+  if (permission !== 'granted') {
+    console.log('Notification permission not granted');
+    return;
   }
 
   try {
-    const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification(title, {
-        icon: '/icons/icon-192x192.png',
-        ...options,
-    });
+    const originUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const notificationOptions: ExtendedNotificationOptions = {
+      icon: `${originUrl}/icons/icon-512x512.png`,
+      badge: `${originUrl}/icons/icon-72x72.png`,
+      image: `${originUrl}/icons/icon-512x512.png`,
+      requireInteraction: true,
+      ...options,
+    };
+
+    // Try service worker first
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.showNotification(title, notificationOptions);
+    } else {
+      // Fallback to regular notifications
+      new Notification(title, notificationOptions);
+    }
   } catch (error) {
     console.error('Error showing notification:', error);
   }

@@ -98,24 +98,39 @@ export default function ReceiptPage() {
   }
   
   const handlePrint = () => {
+    // Set the document title to be used as PDF filename
+    const originalTitle = document.title;
+    document.title = `PathFinder-AI_Receipt_${transaction.reference}`;
+    
     window.print();
+    
+    // Restore the original title after printing
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 100);
   };
 
   return (
     <div className="bg-muted min-h-screen p-4 sm:p-8 flex justify-center">
       <style jsx global>{`
         @media print {
+          @page {
+            size: A4;
+            margin: 1cm;
+          }
           body * {
             visibility: hidden;
+            overflow: hidden;
           }
           #receipt-container, #receipt-container * {
             visibility: visible;
+            overflow: hidden;
           }
           #receipt-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+            
+            box-shadow: none;
+            background: white !important;
+            color: black !important;
           }
           #print-button {
             display: none;

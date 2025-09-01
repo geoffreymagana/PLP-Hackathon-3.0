@@ -72,15 +72,64 @@ const ChatSkeleton = () => (
 
 export default function CheckInPage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [thinkingMessage, setThinkingMessage] = useState("");
+  
+  const tutorThinkingMessages = {
+    initial: [
+      "Let me introduce myself...",
+      "Getting ready to be your learning companion...",
+      "Preparing to help you learn...",
+    ],
+    question: [
+      "Let me think about that...",
+      "That's a great question! Let me gather my thoughts...",
+      "Interesting question! Let me break this down...",
+      "Let me find the best way to explain this...",
+    ],
+    quiz: [
+      "Preparing a question for you...",
+      "Creating a quiz to test your knowledge...",
+      "Let me think of a good challenge...",
+      "Designing a learning exercise...",
+    ],
+    progress: [
+      "Analyzing your progress...",
+      "Looking at your learning journey...",
+      "Reviewing your achievements...",
+      "Thinking of the next steps for you...",
+    ]
+  } as const;
+
+  useEffect(() => {
+    if (isLoading) {
+      let messageType: keyof typeof tutorThinkingMessages = 'progress';
+      if (messages.length === 0) {
+        messageType = 'initial';
+      } else {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.role === "user") {
+          if (lastMessage.content.toLowerCase().includes("quiz") || 
+              lastMessage.content.toLowerCase().includes("test")) {
+            messageType = 'quiz';
+          } else if (lastMessage.content.includes("?")) {
+            messageType = 'question';
+          }
+        }
+      }
+      const messageList = tutorThinkingMessages[messageType];
+      const randomMessage = messageList[Math.floor(Math.random() * messageList.length)];
+      setThinkingMessage(randomMessage);
+    }
+  }, [isLoading, messages]);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -242,8 +291,13 @@ export default function CheckInPage() {
               <Avatar className="bg-transparent text-accent-foreground">
                   <AvatarFallback className="bg-transparent"><AIAvatar /></AvatarFallback>
               </Avatar>
-              <div className="rounded-lg p-3 bg-muted flex items-center">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <div className="rounded-lg p-3 bg-muted flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse delay-100"></div>
+                <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse delay-200"></div>
+                <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse delay-300"></div>
+                <span className="text-sm text-muted-foreground ml-2 animate-pulse">
+                  {thinkingMessage}
+                </span>
               </div>
             </div>
           )}
@@ -269,13 +323,16 @@ export default function CheckInPage() {
                 <FormItem className="flex-1">
                   <FormControl>
                     <Textarea 
-                      ref={textareaRef}
+                      {...field}
                       placeholder="Ask a question or describe your progress..." 
-                      {...field} 
                       className="min-h-0 overflow-y-hidden resize-none"
                       rows={1}
                       disabled={isLoading}
-                      onChange={handleTextAreaChange}
+                      ref={field.ref}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleTextAreaChange(e);
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();

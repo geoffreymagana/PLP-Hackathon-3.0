@@ -30,7 +30,7 @@ const tiers = [
   {
     name: "Pro Monthly",
     planId: "pro-monthly",
-    price: "$5",
+    price: "KES 200",
     priceDetails: "per month",
     features: [
       "Everything in Basic, plus:",
@@ -49,11 +49,11 @@ const tiers = [
   {
     name: "Pro Annual",
     planId: "pro-annual",
-    price: "$50",
+    price: "KES 3,500",
     priceDetails: "per year",
     features: [
       "Everything in Pro Monthly",
-      "2 Months Free (Save 16%)",
+      "5 Months Free (Save 45%)",
       "Early Access to New Features",
     ],
     buttonText: "Upgrade to Annual",
@@ -118,7 +118,7 @@ export default function PricingPage() {
             <CardDescription>Don't need unlimited roadmaps? Buy one at a time.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">$2</p>
+            <p className="text-3xl font-bold">KES 100</p>
             <p className="text-muted-foreground">per additional roadmap</p>
           </CardContent>
           <CardFooter className="w-full px-4">

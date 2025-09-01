@@ -15,7 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Apple, Banknote, CreditCard, Loader2, Smartphone } from "lucide-react";
+import { Loader2, CreditCard } from "lucide-react";
+import { PaymentMethodSelector } from "@/components/ui/payment-method-selector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCountries, getCountryCallingCode } from 'libphonenumber-js/min';
@@ -25,9 +26,9 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 
 const planDetails: Record<string, { name: string; price: number; currency: string; description: string }> = {
-    "pro-monthly": { name: "Pro Plan (Monthly)", price: 5, currency: "USD", description: "Unlock all premium features with a monthly subscription." },
-    "pro-annual": { name: "Pro Plan (Annual)", price: 50, currency: "USD", description: "Get 2 months free with an annual subscription." },
-    "one-off": { name: "One-Off Roadmap", price: 2, currency: "USD", description: "Purchase a single roadmap generation credit." },
+    "pro-monthly": { name: "Pro Plan (Monthly)", price: 200, currency: "KES", description: "Unlock all premium features with a monthly subscription." },
+    "pro-annual": { name: "Pro Plan (Annual)", price: 3500, currency: "KES", description: "Get 2 months free with an annual subscription." },
+    "one-off": { name: "One-Off Roadmap", price: 100, currency: "KES", description: "Purchase a single roadmap generation credit." },
 };
 
 const checkoutSchema = z.object({
@@ -35,10 +36,13 @@ const checkoutSchema = z.object({
     email: z.string().email(),
     countryCode: z.string().min(1, "Country is required"),
     phone: z.string().min(5, "A valid phone number is required."),
-    paymentMethod: z.enum(["card", "mpesa", "bank", "airtel", "apple-pay"], { required_error: "Please select a payment method." }),
+    paymentMethod: z.enum(["card", "mpesa", "bank", "airtel", "apple_pay"], { required_error: "Please select a payment method." }),
     cardNumber: z.string().optional(),
     expiryDate: z.string().optional(),
     cvc: z.string().optional(),
+    bankName: z.string().optional(),
+    accountNumber: z.string().optional(),
+    swiftCode: z.string().optional(),
 }).superRefine((data, ctx) => {
     if (data.paymentMethod === 'card') {
         if (!data.cardNumber || !/^\d{16}$/.test(data.cardNumber)) {
@@ -85,6 +89,9 @@ function CheckoutPageContent() {
             cardNumber: "",
             expiryDate: "",
             cvc: "",
+            bankName: "",
+            accountNumber: "",
+            swiftCode: "",
         },
     });
 
@@ -98,7 +105,7 @@ function CheckoutPageContent() {
                 const docSnap = await getDoc(userDocRef);
                 const profile = docSnap.exists() ? docSnap.data() as UserProfile : {};
 
-                const userCountryCode = countries.find(c => profile.location?.includes(c)) || 'NG';
+                const userCountryCode = 'KE'; // Set Kenya as default country
                 
                 form.reset({
                     name: profile.displayName || user.displayName || "",
@@ -136,27 +143,45 @@ function CheckoutPageContent() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         setIsSubmitting(true);
-        toast({ title: "Processing Payment...", description: "Please wait while we securely process your transaction." });
+        toast({ title: "Processing Payment...", description: "Please wait while we initialize your transaction." });
         
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        console.log("Simulated payment success for:", data);
+        try {
+            // Initialize Paystack transaction
+            const response = await fetch('/api/payments/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    amount: plan.price, // Convert to lowest currency unit (kobo/cents)
+                    currency: plan.currency,
+                    metadata: {
+                        planId,
+                        planName: plan.name,
+                        career: career || undefined,
+                        fullName: data.name,
+                        phone: data.phone,
+                    },
+                }),
+            });
 
-        const reference = `SIM_${Date.now()}`;
-        const queryParams = new URLSearchParams({
-            reference,
-            planId: planId,
-            planName: plan.name,
-            amount: plan.price.toString(),
-            currency: plan.currency,
-        });
+            const result = await response.json();
+            
+            if (!result.authorization_url) {
+                throw new Error(result.error || 'Failed to initialize payment');
+            }
 
-        if (planId === 'one-off' && career) {
-            queryParams.append('career', career);
-            queryParams.append('payment_status', 'success'); // Simulate success
-            router.push(`/payment/complete?${queryParams.toString()}`);
-        } else {
-            router.push(`/payment/complete?${queryParams.toString()}`);
+            // Redirect to Paystack checkout
+            window.location.href = result.authorization_url;
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            toast({
+                variant: "destructive",
+                title: "Payment Failed",
+                description: "Failed to initialize payment. Please try again.",
+            });
+            setIsSubmitting(false);
         }
     };
     
@@ -189,13 +214,7 @@ function CheckoutPageContent() {
         );
     }
 
-    const paymentMethods = [
-        { id: "card", label: "Card", icon: CreditCard },
-        { id: "mpesa", label: "MPesa", icon: Smartphone },
-        { id: "bank", label: "Bank", icon: Banknote },
-        { id: "airtel", label: "Airtel", icon: Smartphone },
-        { id: "apple-pay", label: "Apple Pay", icon: Apple },
-    ]
+    // Payment methods are now handled by the PaymentMethodSelector component
 
     return (
         <div className="p-4 md:p-8 space-y-8">
@@ -220,21 +239,11 @@ function CheckoutPageContent() {
                                             <FormItem className="space-y-3">
                                             <FormLabel>Payment Method</FormLabel>
                                             <FormControl>
-                                                <RadioGroup
+                                                <PaymentMethodSelector
+                                                    value={field.value as any}
                                                     onValueChange={field.onChange}
-                                                    defaultValue={field.value}
-                                                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
-                                                    >
-                                                    {paymentMethods.map(method => (
-                                                        <FormItem key={method.id}>
-                                                            <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
-                                                            <Label htmlFor={method.id} className={cn("flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer", {'border-primary': paymentMethod === method.id})}>
-                                                                <method.icon className="mb-3 h-6 w-6" />
-                                                                {method.label}
-                                                            </Label>
-                                                        </FormItem>
-                                                    ))}
-                                                </RadioGroup>
+                                                    availableMethods={['card', 'mpesa', 'bank', 'airtel', 'apple_pay']}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                             </FormItem>
@@ -336,13 +345,60 @@ function CheckoutPageContent() {
                                             </div>
                                         </>
                                     )}
-                                    <FormDescription className="text-xs">
-                                        This is a simulated payment form. No real transaction will be made.
-                                    </FormDescription>
+                                    
+                                    {paymentMethod === 'bank' && (
+                                        <>
+                                            <FormField
+                                                control={form.control}
+                                                name="bankName"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Bank Name</FormLabel>
+                                                        <FormControl><Input {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="accountNumber"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Account Number</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="swiftCode"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Swift Code</FormLabel>
+                                                            <FormControl><Input {...field} /></FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                                         {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-                                        Pay {plan.price} {plan.currency}
+                                        Pay KES {plan.price.toLocaleString()}
                                     </Button>
+                                    
+                                    <div className="flex justify-center mt-6">
+                                        <img 
+                                            className="max-w-full w-[420px] h-[130px]" 
+                                            width="420" 
+                                            height="130" 
+                                            src="\images\paystack-badge-cards-kes-BdBpQwtR.svg" 
+                                            alt="Secured by Paystack" 
+                                        />
+                                    </div>
                                 </form>
                             </Form>
                         </CardContent>
@@ -356,16 +412,16 @@ function CheckoutPageContent() {
                         <CardContent className="space-y-4">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">{plan.name}</span>
-                                <span>${plan.price.toFixed(2)}</span>
+                                <span>KES {plan.price.toLocaleString()}</span>
                             </div>
                              <div className="flex justify-between text-muted-foreground">
                                 <span>Taxes & Fees</span>
-                                <span>$0.00</span>
+                                <span>KES 0.00</span>
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between font-bold border-t pt-4 mt-4">
                             <span>Total</span>
-                            <span>${plan.price.toFixed(2)} {plan.currency}</span>
+                            <span>KES {plan.price.toLocaleString()}</span>
                         </CardFooter>
                     </Card>
                 </div>

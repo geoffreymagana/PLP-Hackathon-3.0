@@ -11,7 +11,7 @@ import { Logo } from "@/components/logo";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { signInWithEmailAndPassword, getAuth, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { auth, isFirebaseConfigured, provider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -65,30 +65,45 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         setIsGoogleLoading(true);
         try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            
+            if (!auth.app.options.authDomain) {
+                throw new Error('Firebase auth domain is not configured');
+            }
+
+            let user;
+            try {
+                // Try popup first
+                const result = await signInWithPopup(auth, provider);
+                user = result.user;
+            } catch (popupError: any) {
+                console.log("Popup sign-in failed, trying redirect...", popupError);
+                if (popupError.code === 'auth/popup-closed-by-user') {
+                    // Try redirect method if popup fails
+                    await signInWithRedirect(auth, provider);
+                    return; // The page will reload after redirect
+                }
+                throw popupError; // Re-throw if it's not a popup closed error
+            }
+
             // Check if user is new
             const userDocRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(userDocRef);
 
             if (docSnap.exists()) {
                 // Existing user, go to dashboard
-                 router.push('/');
+                router.push('/');
             } else {
                 // New user, go to onboarding
                 router.push('/onboarding');
             }
-        } catch (error: any)
-        {
+        } catch (error: any) {
             console.error("Google login failed:", error);
             let description = "An unexpected error occurred. Please try again.";
-            if (error.code === 'auth/popup-closed-by-user') {
-                description = "The sign-in popup was closed before completion.";
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
+            
+            if (error.code === 'auth/account-exists-with-different-credential') {
                 description = "An account already exists with the same email address but different sign-in credentials.";
             } else if (error.code === 'auth/unauthorized-domain') {
-                 description = "This app's domain is not authorized for Google Sign-In. Please contact the administrator.";
+                console.error('Auth Domain:', auth.app.options.authDomain);
+                description = "Authentication is not properly configured. Please try again later.";
             }
             toast({
                 variant: "destructive",
@@ -98,7 +113,7 @@ export default function LoginPage() {
         } finally {
             setIsGoogleLoading(false);
         }
-    }
+    };
 
     return (
         <Card className="w-full max-w-md shadow-2xl">

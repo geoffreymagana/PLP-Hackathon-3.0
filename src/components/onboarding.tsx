@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -77,13 +77,21 @@ const ProfileStep = ({ onBack, onFinish }: { onBack: () => void, onFinish: (valu
   const form = useForm<OnboardingData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      displayName: "",
+      displayName: auth.currentUser?.displayName || "",
       skills: "",
       interests: "",
       education: "",
       location: "",
     },
   });
+
+  // Update the form with user data if available from Google sign-in
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user?.displayName) {
+      form.setValue('displayName', user.displayName);
+    }
+  }, [form]);
 
   const handleSubmit = async (values: OnboardingData) => {
     setIsLoading(true);

@@ -1,14 +1,47 @@
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
+  let data;
+  try {
+    data = event.data?.json() ?? {
+      title: 'New Notification',
+      body: 'You have a new notification.',
+      icon: '/icons/icon-512x512.png'
+    };
+  } catch (e) {
+    data = {
+      title: event.data?.text() ?? 'New Notification',
+      body: 'You have a new notification.',
+      icon: '/icons/icon-512x512.png'
+    };
+  }
+
+  const baseUrl = self.location.origin;
   const options = {
     body: data.body,
-    icon: data.icon || '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
+    icon: `${baseUrl}/icons/icon-512x512.png`,
+    badge: `${baseUrl}/icons/icon-72x72.png`,
+    image: `${baseUrl}/icons/icon-512x512.png`,
+    vibrate: [100, 50, 100],
+    requireInteraction: true,
+    silent: false,
+    renotify: true,
     data: {
       url: data.url || '/',
+      timestamp: Date.now()
     },
+    actions: [
+      {
+        action: 'open',
+        title: 'Open App',
+        icon: `${baseUrl}/icons/icon-96x96.png`
+      }
+    ],
+    dir: 'auto',
+    timestamp: Date.now()
   };
-  event.waitUntil(self.registration.showNotification(data.title, options));
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
