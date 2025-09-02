@@ -100,7 +100,7 @@ export default function SignupPage() {
                     <Logo />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight">Create an Account</CardTitle>
-                <CardDescription>Join PathFinder AI to start your career journey</CardDescription>
+                <CardDescription>Join PathFinder AI to start your Learning journey</CardDescription>
             </CardHeader>
             <CardContent>
                 {!isFirebaseConfigured ? (
