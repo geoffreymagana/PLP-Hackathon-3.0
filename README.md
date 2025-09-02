@@ -7,7 +7,44 @@
 
 PathFinder AI is a Next.js application designed to provide **personalized, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
 
-## 💙 Our Mission & Alignment with SDG 4
+## Desktop View Screenshots
+### Dashboard
+[Dashboard](image.png)
+
+### Learning Analytics - Basic
+![Learning Analytics](image-1.png)
+
+### Learning Analytics - Pro
+![Learning Analytics](image-2.png)
+
+### AI Generated Roadmap
+![AI Generated Roadmap](image-3.png)
+
+### Roadmap/Curriculum Progress
+![Roadmap/Curriculum Progress](image-4.png)
+
+### AI Micro-Tutor 
+![AI Micro-Tutor](image-5.png)
+
+### AI Quiz Mode
+Generates quizzes based on milestone progress, skills progress, Specific Custom Topics
+![AI Quiz Mode](image-6.png)
+![AI Quiz Mode](image-7.png)
+![AI Quiz Mode](image-8.png)
+
+### Explore other Roadmaps
+![Explore Roadmaps](image-9.png)
+
+### Join a community or connect with a mentor
+
+![Community & Mentorship](image-10.png)
+![Community & Mentorship](image-11.png)
+
+### Profile & Settings
+![Profile](image-12.png)
+![Settings](image-13.png)
+
+## 💙 Mission & Alignment with SDG 4
 
 In line with **UN Sustainable Development Goal 4 (Quality Education)**, PathFinder AI is built to provide inclusive and equitable quality education and promote lifelong learning opportunities for all. We are not just a career guidance tool; we are a lifelong learning assistant.
 
