@@ -9,7 +9,7 @@ PathFinder AI is a Next.js application designed to provide **personalized, acces
 
 ## Desktop View Screenshots
 ### Dashboard
-[Dashboard](image.png)
+![Dashboard](image.png)
 
 ### Learning Analytics - Basic
 ![Learning Analytics](image-1.png)
