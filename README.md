@@ -5,7 +5,7 @@
 > 
 > This project has been developed and submitted according to the PLP Hackathon 3.0 guidelines, focusing on creating impactful solutions for African tech education.
 
-PathFinder AI is a Next.js application designed to provide **personalized, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
+PathFinder AI is a Next.js application designed to provide **personalised, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
 
 ## Desktop View Screenshots
 
@@ -28,7 +28,7 @@ PathFinder AI is a Next.js application designed to provide **personalized, acces
 ![AI Micro-Tutor](image-5.png)
 
 ### AI Quiz Mode
-Generates quizzes based on milestone progress, skills progress, Specific Custom Topics
+Generates quizzes based on milestone progress, skills progress, and Specific Custom Topics
 
 ![AI Quiz Mode](image-6.png)
 ![AI Quiz Mode](image-7.png)
@@ -51,15 +51,15 @@ Generates quizzes based on milestone progress, skills progress, Specific Custom 
 
 In line with **UN Sustainable Development Goal 4 (Quality Education)**, PathFinder AI is built to provide inclusive and equitable quality education and promote lifelong learning opportunities for all. We are not just a career guidance tool; we are a lifelong learning assistant.
 
--   **Equitable Access:** We provide **3 free, personalized learning roadmaps** to anyone, anywhere, curating high-quality, free resources like open-source courses, YouTube tutorials, and community content.
--   **Personalized Quality Education:** Our AI generates customized learning journeys that adapt to different educational levels and goals—from students to professionals upskilling for the future.
+-   **Equitable Access:** We provide **3 free, personalised learning roadmaps** to anyone, anywhere, curating high-quality, free resources like open-source courses, YouTube tutorials, and community content.
+-   **Personalised Quality Education:** Our AI generates customised learning journeys that adapt to different educational levels and goals—from students to professionals upskilling for the future.
 -   **Lifelong Learning:** We support continuous education, whether it's acquiring new hard skills, developing soft skills, or pursuing entrepreneurship.
 -   **Inclusivity & Community:** We foster peer-to-peer learning through mentor and community connections, filling gaps left by formal education systems. We support multiple languages and offer accessibility features.
 
 ## ✨ Features
 
 ### Core Features
--   **AI-Powered Learning Suggestions:** Get personalized learning path recommendations based on your skills, interests, and aspirations.
+-   **AI-Powered Learning Suggestions:** Get personalised learning path recommendations based on your skills, interests, and aspirations.
 -   **Dynamic Roadmap Generation:** Generate step-by-step learning roadmaps for any chosen skill or career path.
 -   **Progress Tracking & Analytics:** Monitor your progress with basic tracking for free. Pro users get advanced analytics.
 -   **AI Monthly Check-ins:** Chat with an AI coach to refine your roadmap and stay motivated.
@@ -67,7 +67,7 @@ In line with **UN Sustainable Development Goal 4 (Quality Education)**, PathFind
 
 ### Pro Features
 -   **Unlimited Roadmaps:** Generate as many career and skill roadmaps as you need
--   **Advanced Analytics:** Detailed progress tracking, skill mastery visualization, and readiness assessments
+-   **Advanced Analytics:** Detailed progress tracking, skill mastery visualisation, and readiness assessments
 -   **Verified Mentors:** Direct access to experienced professionals in your field
 -   **Priority Support:** Get help when you need it most
 -   **Ad-Free Experience:** Focus on your learning without distractions
@@ -115,8 +115,7 @@ We offer flexible plans to suit different needs while keeping core features acce
 -   **Database Management:** Firebase Studio
 -   **Deployment:** Vercel
 -   **Local Development:**
-    - Firebase Emulator Suite
-    - ngrok for webhook testing
+    - ngrok for Paystack webhook testing
     - Chrome DevTools
 -   **Documentation:** Markdown, Excalidraw
 
@@ -183,7 +182,7 @@ VAPID_PRIVATE_KEY=your_vapid_private_key
 1. Create a new Firebase project
 2. Enable Authentication with Google provider
 3. Set up Firestore Database
-4. Add your domain to authorized domains:
+4. Add your domain to authorised domains:
    ```
    Firebase Console -> Authentication -> Settings -> Authorized Domains
    ```
@@ -259,7 +258,7 @@ This project was developed as part of the PLP Hackathon 3.0 and has been submitt
 
 ## 🙏 Acknowledgments
 
-- Power Learn Project (PLP) for organizing the hackathon
+- Power Learn Project (PLP) for organising the hackathon
 - The open-source community for the amazing tools and libraries
 - All mentors and judges for their valuable feedback
 - Firebase team for the excellent documentation and tools
