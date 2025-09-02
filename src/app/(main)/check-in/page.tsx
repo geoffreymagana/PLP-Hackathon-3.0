@@ -7,15 +7,13 @@ import { z } from "zod";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { CopyButton } from "@/components/chat/copy-button";
 import { Quiz } from "@/components/chat/quiz";
 import { MatchingQuiz } from "@/components/chat/matching-quiz";
 import { FillInBlanksQuiz } from "@/components/chat/fill-in-blanks-quiz";
-import { CopyButton } from "@/components/chat/copy-button";
-import { QuizStats } from "@/components/chat/quiz-stats";
-import { Flashcards } from "@/components/chat/flashcards";
-import { SpacedRepetition } from "@/lib/spaced-repetition";
-import { exportQuizStats, importQuizStats } from "@/lib/stats-export";
-import ReactMarkdown from 'react-markdown';
+import { QuizModal } from "@/components/chat/quiz-modal";
+import type { QuizData, MatchingQuizData, FillInBlanksQuizData, MultipleChoiceQuizData } from "@/types/quiz";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,41 +36,7 @@ const formSchema = z.object({
   currentProgress: z.string().min(1, "Message cannot be empty."),
 });
 
-type QuizDifficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
-interface MatchingOption {
-  id: string;
-  left: string;
-  right: string;
-}
-
-interface BaseQuizData {
-  question: string;
-  topic?: string;
-  difficulty: QuizDifficulty;
-  explanation?: string;
-  timeLimit?: number;
-  points: number;
-}
-
-interface MultipleChoiceQuizData extends BaseQuizData {
-  type: 'single' | 'multiple';
-  options: { id: string; text: string }[];
-  correctAnswers: string[];
-}
-
-interface MatchingQuizData extends BaseQuizData {
-  type: 'matching';
-  pairs: MatchingOption[];
-}
-
-interface FillInBlanksQuizData extends BaseQuizData {
-  type: 'fill-in-blanks';
-  text: string;
-  blanks: { id: string; answer: string; alternatives?: string[] }[];
-}
-
-type QuizData = MultipleChoiceQuizData | MatchingQuizData | FillInBlanksQuizData;
 
 interface FlashcardData {
   front: string;
@@ -161,13 +125,14 @@ export default function CheckInPage() {
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const [thinkingMessage, setThinkingMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [quizMode, setQuizMode] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
   const [quizStats, setQuizStats] = useState<QuizStatistics>({
     totalQuestions: 0,
     correctAnswers: 0,
     questionsPerTopic: {},
     streakCount: 0
   });
+  const [quizMode, setQuizMode] = useState(false);
 
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -274,11 +239,11 @@ export default function CheckInPage() {
       const result: MicroTutorChatOutput = await microTutorChat({
         userProfile: `Skills: ${userProfile.skills}, Interests: ${userProfile.interests}, Education: ${userProfile.education}`,
         careerGoal: userProfile.savedRoadmaps?.[0]?.career || "Not specified",
-        currentProgress: quizMode ? `Generate a quiz about: ${values.currentProgress}` : values.currentProgress,
+        currentProgress: values.currentProgress,
         savedRoadmaps: JSON.stringify(userProfile.savedRoadmaps || []),
         completedMilestones: JSON.stringify(userProfile.completedMilestones || []),
         conversationHistory: JSON.stringify(currentMessages),
-        mode: quizMode ? 'quiz' : 'chat',
+        mode: 'chat',
       });
       
       let newAIMessage: Message;
@@ -455,12 +420,13 @@ export default function CheckInPage() {
               <p className="text-muted-foreground">Chat with your AI coach to get answers and refine your roadmap.</p>
             </div>
             <div className="flex items-center gap-4 md:hidden">
-              <Switch
-                checked={quizMode}
-                onCheckedChange={setQuizMode}
-                id="quiz-mode-mobile"
-              />
-              <Label htmlFor="quiz-mode-mobile">Quiz Mode</Label>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowQuizModal(true)}
+              >
+                Start Quiz
+              </Button>
             </div>
           </div>
         </header>
@@ -483,7 +449,9 @@ export default function CheckInPage() {
                 <div className={cn("quiz-container", { "pointer-events-none opacity-60": message.isAnswered })}>
                   {message.quiz.type === 'matching' ? (
                     <MatchingQuiz
-                      pairs={(message.quiz as MatchingQuizData).pairs}
+                      pairs={Array.isArray((message.quiz as MatchingQuizData).pairs) 
+                        ? (message.quiz as MatchingQuizData).pairs 
+                        : []}
                       onSubmit={(matches) => handleQuizSubmit(message.quiz!, matches, index)}
                     />
                   ) : message.quiz.type === 'fill-in-blanks' ? (
@@ -504,23 +472,13 @@ export default function CheckInPage() {
                 </div>
               ) : (
                 <div className="relative">
-                  {message.role === 'ai' && <CopyButton content={message.content} />}
-                  <ReactMarkdown
-                    className={cn(
-                      "prose prose-sm dark:prose-invert max-w-none",
-                      { "prose-p:text-primary-foreground prose-headings:text-primary-foreground prose-strong:text-primary-foreground": message.role === 'user' }
-                    )}
-                    components={{
-                      pre: ({ node, ...props }) => (
-                        <div className="relative">
-                          <CopyButton content={String(props.children).replace(/^```\w+\n/, '').replace(/```$/, '')} />
-                          <pre {...props} />
-                        </div>
-                      ),
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+                  <MarkdownRenderer
+                    content={message.content}
+                    className={cn({
+                      "prose-p:text-primary-foreground prose-headings:text-primary-foreground prose-strong:text-primary-foreground": 
+                      message.role === "user"
+                    })}
+                  />
                 </div>
               )}
             </div>
@@ -606,62 +564,29 @@ export default function CheckInPage() {
       </div>
     </div>
 
-    {/* Quiz Stats Sidebar - only visible on desktop */}
+      {/* Quiz Button */}
       <div className="hidden md:flex flex-col w-80 border-l p-4">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Quiz Mode</h2>
-            <Switch
-              checked={quizMode}
-              onCheckedChange={setQuizMode}
-              id="quiz-mode-desktop"
-            />
+            <Button 
+              variant="outline"
+              onClick={() => setShowQuizModal(true)}
+            >
+              Start Quiz
+            </Button>
           </div>
-          
-          {quizMode && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Quiz Type</label>
-              <select 
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2"
-                onChange={(e) => {
-                  const currentTopic = form.getValues("currentProgress").replace(/Generate .* quiz about /, '') || "[topic]";
-                  form.setValue("currentProgress", `Generate a ${e.target.value} quiz about ${currentTopic}`);
-                }}
-              >
-                <option value="multiple-choice">Multiple Choice</option>
-                <option value="single-answer">Single Answer</option>
-                <option value="matching">Matching</option>
-                <option value="fill-in-the-blanks">Fill in the Blanks</option>
-                <option value="flashcard">Flashcard</option>
-                <option value="code-review">Code Review</option>
-              </select>
-              <p className="text-sm text-muted-foreground">
-                Number of questions: 
-                <select 
-                  className="ml-2 rounded border border-input bg-transparent px-2 py-1"
-                  onChange={(e) => {
-                    const currentQuery = form.getValues("currentProgress");
-                    const topic = currentQuery.replace(/Generate .* quiz about /, '') || "[topic]";
-                    form.setValue("currentProgress", `Generate ${e.target.value} questions about ${topic}`);
-                  }}
-                >
-                  <option value="1">1</option>
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="15">15</option>
-                </select>
-              </p>
-            </div>
-          )}
-          
-          <QuizStats stats={quizStats} />
-          {quizMode && (
-            <p className="text-sm text-muted-foreground">
-              Quiz Mode is active. Type a topic or concept to generate a quiz about it.
-            </p>
-          )}
         </div>
       </div>
+
+      {/* Quiz Modal */}
+      {userProfile && (
+        <QuizModal
+          isOpen={showQuizModal}
+          onClose={() => setShowQuizModal(false)}
+          userProfile={userProfile}
+        />
+      )}
     </div>
   );
 }

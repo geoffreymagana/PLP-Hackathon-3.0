@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -32,7 +32,7 @@ export function Quiz({ question, onSubmit, showResults = false, submitted = fals
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   // Timer logic
-  useState(() => {
+  useEffect(() => {
     if (!question.timeLimit || submitted) return;
 
     const timer = setInterval(() => {
@@ -47,10 +47,13 @@ export function Quiz({ question, onSubmit, showResults = false, submitted = fals
     }, 1000);
 
     return () => clearInterval(timer);
-  });
+  }, [question.timeLimit, submitted]);
 
   const handleSubmit = () => {
-    if (submitted) return;
+    if (submitted || !selectedAnswers || !Array.isArray(selectedAnswers) || selectedAnswers.length === 0) {
+      console.warn('Invalid submission state:', { submitted, selectedAnswers });
+      return;
+    }
     
     const correct = question.type === 'single'
       ? selectedAnswers[0] === question.correctAnswers[0]
