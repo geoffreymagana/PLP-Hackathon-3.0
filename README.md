@@ -1,7 +1,7 @@
 
 # PathFinder AI - Your Personal AI Learning Companion
 
-> 🏆 Submitted for PLP Hackathon 3.0 - September 2025
+> 🏆 Submitted for PLP Hackathon 3.0 - 2 September, 2025
 > 
 > This project has been developed and submitted according to the PLP Hackathon 3.0 guidelines, focusing on creating impactful solutions for African tech education.
 
