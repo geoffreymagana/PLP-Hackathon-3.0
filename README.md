@@ -8,6 +8,7 @@
 PathFinder AI is a Next.js application designed to provide **personalized, accessible, and AI-powered lifelong learning**, tailored to individual goals and the evolving job market, with a special focus on empowering learners in Africa.
 
 ## Desktop View Screenshots
+
 ### Dashboard
 ![Dashboard](image.png)
 
@@ -28,6 +29,7 @@ PathFinder AI is a Next.js application designed to provide **personalized, acces
 
 ### AI Quiz Mode
 Generates quizzes based on milestone progress, skills progress, Specific Custom Topics
+
 ![AI Quiz Mode](image-6.png)
 ![AI Quiz Mode](image-7.png)
 ![AI Quiz Mode](image-8.png)
@@ -41,6 +43,7 @@ Generates quizzes based on milestone progress, skills progress, Specific Custom 
 ![Community & Mentorship](image-11.png)
 
 ### Profile & Settings
+
 ![Profile](image-12.png)
 ![Settings](image-13.png)
 
