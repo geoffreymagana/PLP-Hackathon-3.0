@@ -11,7 +11,7 @@ import { Logo } from "@/components/logo";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { signInWithEmailAndPassword, getAuth, signInWithPopup, signInWithRedirect } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signInWithPopup, signInWithRedirect, fetchSignInMethodsForEmail } from "firebase/auth";
 import { auth, isFirebaseConfigured, provider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -100,7 +100,20 @@ export default function LoginPage() {
             let description = "An unexpected error occurred. Please try again.";
             
             if (error.code === 'auth/account-exists-with-different-credential') {
-                description = "An account already exists with the same email address but different sign-in credentials.";
+                try {
+                    const email = error.customData?.email;
+                    if (email) {
+                        // Fetch providers for the email
+                        const providers = await fetchSignInMethodsForEmail(auth, email);
+                        if (providers.includes('password')) {
+                            description = "This email is already registered. Please sign in with your password or use the forgot password option.";
+                        } else {
+                            description = "This email is already registered with a different sign-in method. Please try signing in with the method you used previously.";
+                        }
+                    }
+                } catch (fetchError) {
+                    description = "An account already exists with the same email address but different sign-in credentials.";
+                }
             } else if (error.code === 'auth/unauthorized-domain') {
                 console.error('Auth Domain:', auth.app.options.authDomain);
                 description = "Authentication is not properly configured. Please try again later.";
@@ -143,7 +156,7 @@ export default function LoginPage() {
                         <div className="space-y-2 relative">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="password">Password</Label>
-                                <Link href="#" className="text-sm font-medium text-primary hover:underline">
+                                <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>

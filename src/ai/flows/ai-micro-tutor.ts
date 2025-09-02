@@ -11,6 +11,8 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+import { QuizSchema, MicroTutorChatMode } from './types';
+
 const MicroTutorChatInputSchema = z.object({
   userProfile: z
     .string()
@@ -28,6 +30,7 @@ const MicroTutorChatInputSchema = z.object({
   conversationHistory: z
     .string()
     .describe('A JSON string of the previous conversation messages.'),
+  mode: MicroTutorChatMode.optional().describe('The mode of interaction with the AI.'),
 });
 export type MicroTutorChatInput = z.infer<typeof MicroTutorChatInputSchema>;
 
@@ -37,6 +40,7 @@ const MicroTutorChatOutputSchema = z.object({
     .describe('A brief, encouraging, and well-formatted markdown response. Praise good progress and offer support for challenges.'),
   suggestedPrompts: z.array(z.string()).describe('An array of 3-4 suggested follow-up questions the user might ask.'),
   score: z.number().describe('A score awarded to the user based on their answers to questions. Award 10 points for a good answer. Default to 0 if not applicable.'),
+  quiz: QuizSchema.optional().describe('The quiz data when in quiz mode'),
 });
 export type MicroTutorChatOutput = z.infer<typeof MicroTutorChatOutputSchema>;
 
