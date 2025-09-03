@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BadgeCheck, Crown, ExternalLink, Lock, Search } from "lucide-react";
+import { BadgeCheck, Crown, ExternalLink, Lock, Search, Construction } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -21,48 +21,295 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // --- MENTORS DATA ---
 const mentors = [
+    // Finance & Agri-Finance
     {
-        name: "Dr. Adebayo Adekunle",
-        avatarSeed: "adebayo",
-        bio: "Lead AI Researcher at AfroInnovate Hub with 15+ years of experience in Machine Learning and Natural Language Processing.",
-        tags: ["Artificial Intelligence", "Machine Learning", "Python"],
+        name: "Jennifer Riria",
+        avatarSeed: "jennifer-riria",
+        bio: "CEO of Kenya Women Holding Group; a leader in microfinance focused on rural women’s financial inclusion.",
+        tags: ["Microfinance", "Women's Finance", "Financial Inclusion"],
         verified: true,
     },
     {
-        name: "Chiamaka Nwosu",
-        avatarSeed: "chiamaka",
-        bio: "Senior Product Designer at Paystack. Passionate about creating user-centric financial products for the African market.",
-        tags: ["UI/UX Design", "FinTech", "Product Management"],
+        name: "Wanja Yvonne Michuki",
+        avatarSeed: "wanja-yvonne-michuki",
+        bio: "MD at Be Bold Consulting & Advisory and board member at Kenya Agricultural Finance Corporation. An expert agri-finance strategist.",
+        tags: ["Agri-finance", "Strategy", "Investment"],
         verified: true,
     },
     {
-        name: "Kwame Osei",
-        avatarSeed: "kwame",
-        bio: "Cybersecurity expert and founder of SecureAfrica. Specializes in ethical hacking and building secure digital infrastructures.",
-        tags: ["Cybersecurity", "Network Security", "Cloud"],
+        name: "Samuel Karanja",
+        avatarSeed: "samuel-karanja",
+        bio: "Senior Regional Agriculture Manager at Mercy Corps AgriFin, specializing in value-chain finance.",
+        tags: ["Value-Chain Finance", "Agri-finance", "Digital Tools"],
         verified: true,
     },
     {
-        name: "Fatima Al-Hassan",
-        avatarSeed: "fatima",
-        bio: "Full-stack developer and mentor, focused on empowering women in tech through code. Expert in MERN stack.",
-        tags: ["JavaScript", "React", "Node.js", "Web Development"],
-        verified: false,
-    },
-    {
-        name: "Jelani Okoro",
-        avatarSeed: "jelani",
-        bio: "AgriTech innovator and founder of FarmConnect. Using IoT and data to revolutionize farming practices in Kenya.",
-        tags: ["AgriTech", "IoT", "Data Analysis"],
+        name: "Betty Muriithi",
+        avatarSeed: "betty-muriithi",
+        bio: "Regional Digital Financial Services Manager for AgriFin Accelerate, specializing in digital solutions for agriculture.",
+        tags: ["Digital Financial Services", "Agri-finance", "FinTech"],
         verified: true,
     },
     {
-        name: "Aisha Ibrahim",
-        avatarSeed: "aisha",
-        bio: "Digital marketing strategist who has scaled multiple e-commerce brands across West Africa. Google certified.",
-        tags: ["Digital Marketing", "SEO", "E-commerce"],
-        verified: false,
+        name: "Grace N. Njoroge",
+        avatarSeed: "grace-n-njoroge",
+        bio: "Program lead at Mercy Corps AgriFin, focusing on financial inclusion and digital outreach.",
+        tags: ["Financial Inclusion", "Digital Outreach", "AgriFin"],
+        verified: true
     },
+    {
+        name: "Sieka Gatabaki",
+        avatarSeed: "sieka-gatabaki",
+        bio: "Program lead at Mercy Corps AgriFin, focusing on financial inclusion and digital outreach.",
+        tags: ["Financial Inclusion", "Digital Outreach", "AgriFin"],
+        verified: true
+    },
+
+    // Agritech & Ecosystem
+    {
+        name: "Jamila Abbas",
+        avatarSeed: "jamila-abbas",
+        bio: "Co-founder & COO of M-Farm Kenya, a pioneering platform supporting farmers with market data.",
+        tags: ["AgriTech", "Startups", "Farmer Tech"],
+        verified: true,
+    },
+    {
+        name: "Ada Osakwe",
+        avatarSeed: "ada-osakwe",
+        bio: "Founder of Agrolay Ventures and board member at One Acre Fund and AGRA. A specialist in agribusiness investment.",
+        tags: ["Agribusiness", "Investment", "Venture Capital"],
+        verified: true,
+    },
+    {
+        name: "Amandla Ooko-Ombaka",
+        avatarSeed: "amandla-ooko-ombaka",
+        bio: "Partner at McKinsey Nairobi, leading regional agri and food security strategy.",
+        tags: ["Agriculture Strategy", "Food Security", "Consulting"],
+        verified: true
+    },
+    {
+        name: "Dr. Leonard Oruko",
+        avatarSeed: "dr-leonard-oruko",
+        bio: "Group Director, Food & Agriculture at Equity Group Holdings, an expert in agri finance and policy.",
+        tags: ["Agri-finance", "Policy", "Food Security"],
+        verified: true
+    },
+    {
+        name: "Phyllis Ombonyo",
+        avatarSeed: "phyllis-ombonyo",
+        bio: "Head of Strategic Partnerships, Africa at CABI, an expert in agri-sector partnerships.",
+        tags: ["Partnerships", "Agriculture", "Agri-sector"],
+        verified: true
+    },
+
+    // Tech & Digital Innovation
+    {
+        name: "Ory Okolloh Mwangi",
+        avatarSeed: "ory-okolloh-mwangi",
+        bio: "A renowned civic tech pioneer and co-initiator of the globally recognized Ushahidi platform.",
+        tags: ["Civic Tech", "Innovation", "Open Source"],
+        verified: true,
+    },
+    {
+        name: "Linda Kamau",
+        avatarSeed: "linda-kamau",
+        bio: "Founder of AkiraChix, a mentor and trainer dedicated to providing coding education for young women in tech.",
+        tags: ["Women in Tech", "Coding", "Education"],
+        verified: true,
+    },
+    {
+        name: "Juliana Rotich",
+        avatarSeed: "juliana-rotich",
+        bio: "Co-founder of Ushahidi & BRCK, and a leading strategist in the fintech space.",
+        tags: ["FinTech", "Tech Infrastructure", "Innovation"],
+        verified: true,
+    },
+    {
+        name: "Dr. Shikoh Gitau",
+        avatarSeed: "dr-shikoh-gitau",
+        bio: "Founder & CEO of Qhala and former innovation lead at Safaricom, specializing in applying AI to real-world problems.",
+        tags: ["AI", "Innovation", "Tech Leadership"],
+        verified: true,
+    },
+    {
+        name: "Kendi Ntwiga",
+        avatarSeed: "kendi-ntwiga",
+        bio: "Global tech leader with experience at Microsoft, Check Point, and HP. A champion for STEM mentorship.",
+        tags: ["Tech Strategy", "Mentorship", "Leadership"],
+        verified: true,
+    },
+    {
+        name: "Chao Mbogho",
+        avatarSeed: "chao-mbogho",
+        bio: "Dean of Computer Science at Kenya Methodist University; leads coding mentorship through KamiLimu.",
+        tags: ["Computer Science", "Academia", "Mentorship"],
+        verified: true
+    },
+    {
+        name: "Angela Oduor Lungati",
+        avatarSeed: "angela-oduor-lungati",
+        bio: "Executive Director, Ushahidi; open-source and digital inclusion advocate.",
+        tags: ["Open Source", "Digital Inclusion", "Leadership"],
+        verified: true
+    },
+    {
+        name: "Judith Adem Owigar",
+        avatarSeed: "judith-adem-owigar",
+        bio: "Co-founder & President, AkiraChix; diversity champion in tech.",
+        tags: ["Women in Tech", "Diversity", "Startups"],
+        verified: true
+    },
+    {
+        name: "Dr. Catherine Adeya",
+        avatarSeed: "dr-catherine-adeya",
+        bio: "Former CEO, Konza Technopolis; Internet governance expert.",
+        tags: ["Internet Governance", "ICT Policy", "Tech Leadership"],
+        verified: true,
+    },
+    {
+        name: "Alice Munyua",
+        avatarSeed: "alice-munyua",
+        bio: "Director of Africa Innovation, Mozilla; ICT policy pioneer.",
+        tags: ["ICT Policy", "Innovation", "Mozilla"],
+        verified: true
+    },
+    {
+        name: "Nekesa Were",
+        avatarSeed: "nekesa-were",
+        bio: "Founder, iHub and AfriLabs; tech startups ecosystem builder.",
+        tags: ["Tech Hubs", "Startups", "Ecosystem Builder"],
+        verified: true
+    },
+    {
+        name: "Jessica Colaço",
+        avatarSeed: "jessica-colaco",
+        bio: "Influential leader in e-commerce and fintech.",
+        tags: ["E-commerce", "FinTech", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Marie Githinji",
+        avatarSeed: "marie-githinji",
+        bio: "Influential leader in e-commerce and fintech.",
+        tags: ["E-commerce", "FinTech", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Dorcas Muthoni",
+        avatarSeed: "dorcas-muthoni",
+        bio: "Influential leader in e-commerce and fintech.",
+        tags: ["E-commerce", "FinTech", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Hilda Moraa",
+        avatarSeed: "hilda-moraa",
+        bio: "Influential leader in e-commerce and fintech.",
+        tags: ["E-commerce", "FinTech", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Catherine Mahugu",
+        avatarSeed: "catherine-mahugu",
+        bio: "Influential leader in e-commerce and fintech.",
+        tags: ["E-commerce", "FinTech", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Kathleen Siminyu",
+        avatarSeed: "kathleen-siminyu",
+        bio: "Influential leader in AI and mentoring.",
+        tags: ["AI", "Mentoring", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Grace Murugi Wanjama",
+        avatarSeed: "grace-murugi-wanjama",
+        bio: "Influential leader in AI and mentoring.",
+        tags: ["AI", "Mentoring", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Elizabeth Mwangi",
+        avatarSeed: "elizabeth-mwangi",
+        bio: "Influential leader in AI and mentoring.",
+        tags: ["AI", "Mentoring", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Agnes Gathaiya",
+        avatarSeed: "agnes-gathaiya",
+        bio: "Influential leader in ecosystem strategy.",
+        tags: ["Ecosystem Strategy", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Phyllis Migwi",
+        avatarSeed: "phyllis-migwi",
+        bio: "Influential leader in ecosystem strategy.",
+        tags: ["Ecosystem Strategy", "Tech Leadership"],
+        verified: true
+    },
+    {
+        name: "Betty Mwangi",
+        avatarSeed: "betty-mwangi",
+        bio: "Influential leader in ecosystem strategy.",
+        tags: ["Ecosystem Strategy", "Tech Leadership"],
+        verified: true
+    },
+
+    // Cybersecurity
+    {
+        name: "Dr. Bright Gameli Mawudor",
+        avatarSeed: "dr-bright-gameli-mawudor",
+        bio: "CEO of Cyber Guard Africa and founder of Africahackon. A leading strategist in Cybersecurity and Blockchain.",
+        tags: ["Cybersecurity", "Blockchain", "Strategy"],
+        verified: true,
+    },
+    {
+        name: "Evelyn Chepkirui Kilel",
+        avatarSeed: "evelyn-chepkirui-kilel",
+        bio: "Principal Cybersecurity Engineer at Safaricom and co-founder of SheHacksKE. One of the top 50 women in African cybersecurity.",
+        tags: ["Cybersecurity", "Community Training", "DevSecOps"],
+        verified: true,
+    },
+    {
+        name: "Terry W. Macharia",
+        avatarSeed: "terry-w-macharia",
+        bio: "IT security leader and mentor at iHub, holding multiple certifications including CEH, CISA, and CISM.",
+        tags: ["IT Security", "Cyber Hygiene", "Mentorship"],
+        verified: true,
+    },
+    {
+        name: "Nancy Njeri Muriithi",
+        avatarSeed: "nancy-njeri-muriithi",
+        bio: "Cybersecurity consultant & mentor; former outreach head at RCD Africa; trainer at SheHacksKE and M-PESA Academy.",
+        tags: ["Cybersecurity", "Training", "Mentorship"],
+        verified: true
+    },
+    {
+        name: "Maurine Chepkoech",
+        avatarSeed: "maurine-chepkoech",
+        bio: "Cybersecurity researcher focused on mobile security and reverse engineering at e.KRAAL Innovation Hub.",
+        tags: ["Cybersecurity Research", "Mobile Security", "Reverse Engineering"],
+        verified: true
+    },
+    {
+        name: "Charity Wamboi Ng’ang’a",
+        avatarSeed: "charity-wamboi-nganga",
+        bio: "Cybersecurity analyst and AFCHIX program mentor.",
+        tags: ["Cybersecurity", "Mentorship", "Community"],
+        verified: true
+    },
+
+    // Social Impact & Leadership
+    {
+        name: "Mumbi Ndung’u",
+        avatarSeed: "mumbi-ndungu",
+        bio: "Executive Director at Power Learn Project Africa, leading large-scale digital inclusion and skills-to-jobs programs for youth.",
+        tags: ["Digital Skills", "Youth Development", "Social Impact"],
+        verified: true,
+    }
 ];
 
 // --- COMMUNITIES DATA ---
@@ -220,209 +467,108 @@ const communities = [
     {
         name: "TechCultivate Kenya",
         logo: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%205%205%22%20fill%3D%22none%22%20shape-rendering%3D%22crispEdges%22%3E%3Cmetadata%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Axsi%3D%22http%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema-instance%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%20xmlns%3Adcterms%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%22%3E%3Crdf%3ARDF%3E%3Crdf%3ADescription%3E%3Cdc%3Atitle%3EIdenticon%3C%2Fdc%3Atitle%3E%3Cdc%3Acreator%3EDiceBear%3C%2Fdc%3Acreator%3E%3Cdc%3Asource%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fwww.dicebear.com%3C%2Fdc%3Asource%3E%3Cdcterms%3Alicense%20xsi%3Atype%3D%22dcterms%3AURI%22%3Ehttps%3A%2F%2Fcreativecommons.org%2Fpublicdomain%2Fzero%2F1.0%2F%3C%2Fdcterms%3Alicense%3E%3Cdc%3Arights%3E%E2%80%9EIdenticon%E2%80%9D%20(https%3A%2F%2Fwww.dicebear.com)%20by%20%E2%80%9EDiceBear%E2%80%9D%2C%20licensed%20under%20%E2%80%9ECC0%201.0%E2%80%9D%20(https%3A%2F%2Fcreativecommons.org%2Fpublicdomain%2Fzero%2F1.0%2F)%3C%2Fdc%3Arights%3E%3C%2Frdf%3ADescription%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cmask%20id%3D%22viewboxMask%22%3E%3Crect%20width%3D%225%22%20height%3D%225%22%20rx%3D%220%22%20ry%3D%220%22%20x%3D%220%22%20y%3D%220%22%20fill%3D%22%23fff%22%20%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url(%23viewboxMask)%22%3E%3Cpath%20d%3D%22M0%200h1v1H0V0ZM4%200h1v1H4V0ZM3%200H2v1h1V0Z%22%20fill%3D%22%23fdd835%22%2F%3E%3Cpath%20fill%3D%22%23fdd835%22%20d%3D%22M0%201h5v1H0z%22%2F%3E%3Cpath%20d%3D%22M0%202h1v1H0V2ZM4%202h1v1H4V2ZM3%202H2v1h1V2Z%22%20fill%3D%22%23fdd835%22%2F%3E%3Cpath%20d%3D%22M0%203h1v1H0V3ZM4%203h1v1H4V3ZM3%203H2v1h1V3Z%22%20fill%3D%22%23fdd835%22%2F%3E%3Cpath%20d%3D%22M0%204h1v1H0V4ZM4%204h1v1H4V4ZM3%204H2v1h1V4Z%22%20fill%3D%22%23fdd835%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E",
-        description: "A youth-oriented initiative providing coding workshops, mentorship, and tech events to cultivate young innovators in underserved areas.",
+        description: "Focuses on bridging the tech talent gap by providing industry-aligned training, mentorship, and job placement support.",
         country: "Kenya",
-        tags: ["Youth", "Coding", "Innovation"],
-        events: ["Annual Youth Tech Fair"],
-        link: "https://techcultivate.org/",
-        verified: false,
-    },
-    {
-        name: "Women Who Code",
-        logo: "/images/community/Women Who Code.png",
-        description: "A global organization offering women in tech access to learning resources, hackathons, and networking events.",
-        country: "Global / Pan-African Chapters",
-        tags: ["Women in Tech", "Global Network", "Hackathons"],
-        events: ["Connect Forward 2024"],
-        link: "https://womenwhocode.com/",
+        tags: ["Tech Training", "Job Placement", "Mentorship"],
+        events: ["Data Science Bootcamp applications open"],
+        link: "https://techcultivate.co.ke/",
         verified: true,
-    },
-    {
-        name: "TechGetAfrica",
-        logo: "/images/community/TechGetAfrica.png",
-        description: "A vibrant tech community spanning 12 African countries with over 50,000 members, offering meetups, forums, and hackathons.",
-        country: "Pan-African",
-        tags: ["Networking", "Meetups", "Forums"],
-        events: ["Annual Tech Outlook Summit"],
-        link: "https://techgetafrica.co.ke/communities",
-        verified: false,
-    },
-    {
-        name: "African Centre for Technology Studies (ACTS)",
-        logo: "/images/community/African Centre for Technology Studies (ACTS).png",
-        description: "A Nairobi-based think tank focused on policy research for harnessing science and technology for sustainable development.",
-        country: "Kenya",
-        tags: ["Policy", "Research", "Sustainability"],
-        events: ["Annual Research Symposium"],
-        link: "https://acts-net.org/",
-        verified: true,
-    },
-    {
-        name: "Afriwork",
-        logo: "/images/community/Afriwork.jpeg",
-        description: "An HR tech and freelance job marketplace connecting East African jobseekers with SMEs via web and Telegram services.",
-        country: "East Africa",
-        tags: ["Freelancing", "Jobs", "HR Tech"],
-        events: ["Freelancer of the Year Awards"],
-        link: "https://afriworket.com/",
-        verified: false,
-    },
-    {
-        name: "Bundle Africa",
-        logo: "/images/community/Bundle Africa.png",
-        description: "A social payment and crypto platform enabling peer-to-peer trading, savings, and fiat exchange, fostering crypto inclusion.",
-        country: "Pan-African",
-        tags: ["Crypto", "FinTech", "Blockchain"],
-        events: ["Weekly Crypto Market Analysis"],
-        link: "https://en.wikipedia.org/wiki/Bundle_Africa",
-        verified: false,
     }
 ];
 
-type UserProfile = {
-    isProUser?: boolean;
-};
-
-const MentorCard = ({ mentor, isProUser }: { mentor: typeof mentors[0], isProUser: boolean }) => (
-    <Card className="flex flex-col">
+const MentorCard = ({ mentor, isProUser }: { mentor: any, isProUser?: boolean }) => (
+    <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-start gap-4">
-            <Avatar className="h-16 w-16 border">
-                <AvatarImage
-                    src={`https://api.dicebear.com/8.x/identicon/svg?seed=${mentor.avatarSeed}`}
-                    alt={mentor.name}
-                />
-                <AvatarFallback>{mentor.name.charAt(0)}</AvatarFallback>
+            <Avatar className="h-12 w-12 border-2 border-primary">
+                <AvatarImage src={`https://api.dicebear.com/8.x/identicon/svg?seed=${mentor.avatarSeed}`} alt={mentor.name} />
+                <AvatarFallback>{mentor.name.substring(0, 2)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-                <div className="flex items-center gap-2">
-                    <CardTitle className="text-xl">{mentor.name}</CardTitle>
-                    {mentor.verified && <BadgeCheck className="h-5 w-5 text-primary" />}
+            <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                    {mentor.name}
+                    {mentor.verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
+                </CardTitle>
+                <div className="flex items-center gap-2 mt-1">
+                    <CardDescription>{mentor.tags[0]}</CardDescription>
                 </div>
-                <CardDescription>Mentor</CardDescription>
+            </div>
+        </CardHeader>
+        <CardContent className="flex-1 text-sm text-muted-foreground">
+            {mentor.bio}
+        </CardContent>
+        <CardFooter>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button className="w-full" disabled={!isProUser}>
+                        {!isProUser && <Lock className="mr-2 h-4 w-4" />}
+                        Connect
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2"><Construction />Feature Coming Soon!</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            We are working hard to build a robust and safe mentorship platform. The direct connection feature is currently in development and will be launched for Pro subscribers soon. Stay tuned!
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction>Got it, thanks!</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </CardFooter>
+    </Card>
+);
+
+const CommunityCard = ({ community }: { community: any }) => (
+    <Card className="flex flex-col h-full">
+        <CardHeader className="flex flex-row items-start gap-4">
+            <Avatar className="h-12 w-12 rounded-lg border">
+                <AvatarImage src={community.logo} alt={community.name} className="object-contain" />
+                <AvatarFallback>{community.name.substring(0, 2)}</AvatarFallback>
+            </Avatar>
+            <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                    {community.name}
+                    {community.verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
+                </CardTitle>
+                 <div className="flex items-center gap-2 mt-1">
+                    <CardDescription>{community.country}</CardDescription>
+                </div>
             </div>
         </CardHeader>
         <CardContent className="flex-1 space-y-4">
-            <p className="text-sm text-muted-foreground">{mentor.bio}</p>
-            <div className="flex flex-wrap gap-2">
-                {mentor.tags.map(tag => (
+            <p className="text-sm text-muted-foreground">{community.description}</p>
+             <div className="flex flex-wrap gap-2">
+                {community.tags.map((tag: string) => (
                     <Badge key={tag} variant="secondary">{tag}</Badge>
                 ))}
             </div>
         </CardContent>
         <CardFooter>
-            {isProUser ? (
-                <Button className="w-full">Connect</Button>
-            ) : (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button className="w-full" variant="outline">
-                            <Lock className="mr-2 h-4 w-4" />
-                            Connect
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Upgrade to Pro to Connect</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Get direct access to experienced mentors and accelerate your career. Upgrade your plan to start the conversation.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Maybe Later</AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                                <Link href="/settings">
-                                    <Crown className="mr-2 h-4 w-4" />
-                                    Upgrade
-                                </Link>
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )}
+            <Link href={community.link} target="_blank" rel="noopener noreferrer" className="w-full">
+                <Button variant="outline" className="w-full">
+                    Visit Website <ExternalLink className="ml-2 h-4 w-4"/>
+                </Button>
+            </Link>
         </CardFooter>
     </Card>
 );
 
-const CommunityCard = ({ community }: { community: typeof communities[0] }) => {
-    const logoSrc =
-    community.logo && community.logo.length > 0
-      ? community.logo
-      : `https://api.dicebear.com/8.x/identicon/svg?seed=${encodeURIComponent(community.name)}`;
-
-    return (
-        <Card className="flex flex-col">
-            <CardHeader>
-                <div className="flex items-start gap-4">
-                     <Image src={logoSrc} alt={`${community.name} logo`} width={64} height={64} className="rounded-lg border object-contain" data-ai-hint="logo" />
-                     <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                            <CardTitle className="text-xl">{community.name}</CardTitle>
-                            {community.verified && <BadgeCheck className="h-5 w-5 text-primary" />}
-                        </div>
-                        <CardDescription>{community.country}</CardDescription>
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-4">
-                <p className="text-sm text-muted-foreground">{community.description}</p>
-                <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Upcoming Events</h4>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {community.events.map(event => (
-                            <li key={event}>{event}</li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {community.tags.map(tag => (
-                        <Badge key={tag} variant="outline">{tag}</Badge>
-                    ))}
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Link href={community.link} target="_blank" rel="noopener noreferrer" className="w-full">
-                    <Button variant="outline" className="w-full">
-                        Learn More <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
-                </Link>
-            </CardFooter>
-        </Card>
-    );
-};
-
-const ConnectSkeleton = () => (
-    <div className="p-4 md:p-8 space-y-8 animate-pulse">
-        <header className="space-y-2">
-            <Skeleton className="h-10 w-1/3" />
-            <Skeleton className="h-4 w-2/3" />
-        </header>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <Skeleton className="h-12 w-full sm:w-48" />
-            <Skeleton className="h-12 flex-1" />
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            <Skeleton className="h-[400px] w-full" />
-            <Skeleton className="h-[400px] w-full" />
-            <Skeleton className="h-[400px] w-full" />
-        </div>
-    </div>
-);
-
-
 function ConnectPageContent() {
     const searchParams = useSearchParams();
+    const initialTab = searchParams.get('tab') || 'mentors';
     const [searchTerm, setSearchTerm] = useState('');
-    const defaultTab = searchParams.get('tab') === 'communities' ? 'communities' : 'mentors';
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [userProfile, setUserProfile] = useState<{ isProUser?: boolean } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists()) {
-                    setUserProfile(docSnap.data() as UserProfile);
+                    setUserProfile(docSnap.data());
                 }
             }
             setIsLoading(false);
@@ -442,69 +588,89 @@ function ConnectPageContent() {
         community.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    if (isLoading) {
+        return (
+             <div className="p-4 md:p-8 space-y-8 animate-pulse">
+                <header className="space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Connect & Grow</h1>
+                    <p className="text-muted-foreground">Find mentors and communities to accelerate your learning journey.</p>
+                </header>
+                <Skeleton className="h-10 w-1/3" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="p-4 md:p-8 space-y-8">
             <header className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">Connect & Grow</h1>
-                <p className="text-muted-foreground">Find mentors and join communities to accelerate your career journey.</p>
+                <p className="text-muted-foreground">Find mentors and communities to accelerate your learning journey.</p>
             </header>
 
-            <Tabs defaultValue={defaultTab} className="w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <TabsList className="grid grid-cols-2 w-full sm:w-auto h-auto">
-                        <TabsTrigger value="mentors" className="py-2.5 text-sm">Mentors</TabsTrigger>
-                        <TabsTrigger value="communities" className="py-2.5 text-sm">Communities</TabsTrigger>
-                    </TabsList>
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            placeholder="Search by name, keyword, or tag..."
-                            className="pl-10 text-base h-12 w-full"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    placeholder="Search by name, tag, or keyword..."
+                    className="pl-10 text-base h-12"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
 
+            <Tabs defaultValue={initialTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="mentors">Mentors</TabsTrigger>
+                    <TabsTrigger value="communities">Communities</TabsTrigger>
+                </TabsList>
                 <TabsContent value="mentors" className="mt-6">
-                    {isLoading ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <Skeleton className="h-[400px] w-full" />
-                            <Skeleton className="h-[400px] w-full" />
-                            <Skeleton className="h-[400px] w-full" />
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredMentors.map(mentor => <MentorCard key={mentor.avatarSeed} mentor={mentor} isProUser={!!userProfile?.isProUser} />)}
-                        </div>
+                     {!userProfile?.isProUser && (
+                        <Card className="mb-6 bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800">
+                            <CardHeader className="flex flex-row items-center gap-4">
+                                 <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-full">
+                                    <Crown className="h-6 w-6 text-amber-500 dark:text-amber-400" />
+                                </div>
+                                <div>
+                                <CardTitle className="text-amber-900 dark:text-amber-100">Unlock Direct Connections</CardTitle>
+                                <CardDescription className="text-amber-700 dark:text-amber-300">
+                                    Upgrade to Pro to connect directly with verified mentors.
+                                </CardDescription>
+                                </div>
+                            </CardHeader>
+                             <CardFooter>
+                                <Link href="/pricing">
+                                    <Button variant="default" className="bg-amber-500 hover:bg-amber-600 text-white">View Pro Plans</Button>
+                                </Link>
+                            </CardFooter>
+                        </Card>
                     )}
-                    {filteredMentors.length === 0 && !isLoading && (
-                        <p className="text-muted-foreground text-center md:col-span-2 lg:col-span-3 py-8">
-                            No mentors found for your search term.
-                        </p>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="communities" className="mt-6">
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredCommunities.map(community => <CommunityCard key={community.name} community={community} />)}
+                        {filteredMentors.map((mentor, index) => (
+                            <MentorCard key={`${mentor.avatarSeed}-${index}`} mentor={mentor} isProUser={userProfile?.isProUser}/>
+                        ))}
                     </div>
-                    {filteredCommunities.length === 0 && (
-                        <p className="text-muted-foreground text-center md:col-span-2 lg:col-span-3 py-8">
-                            No communities found for your search term.
-                        </p>
-                    )}
+                </TabsContent>
+                <TabsContent value="communities" className="mt-6">
+                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCommunities.map((community, index) => (
+                           <CommunityCard key={`${community.name}-${index}`} community={community} />
+                        ))}
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>
     );
 }
 
-
 export default function ConnectPage() {
     return (
-        <Suspense fallback={<ConnectSkeleton />}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
             <ConnectPageContent />
         </Suspense>
-    )
+    );
 }

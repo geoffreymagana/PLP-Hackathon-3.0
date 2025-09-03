@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -40,7 +41,7 @@ export function DashboardCards() {
         <div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {cardData.map((card, index) => (
-                    <Link href={card.href} key={index} className="group">
+                    <Link href={card.href} key={card.href} className="group">
                         <Card className="h-full hover:border-primary transition-colors hover:shadow-lg overflow-hidden relative">
                             <div className={`absolute left-0 top-0 w-1.5 h-full ${card.color}`} />
                             <CardHeader className="space-y-3">
