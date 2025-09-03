@@ -7,7 +7,7 @@ export const PaystackTransactionSchema = z.object({
   reference: z.string().optional(),
   callback_url: z.string().url().optional(),
   plan: z.string().optional(),
-  channels: z.array(z.enum(['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'])).optional(),
+  channels: z.array(z.enum(['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer', 'applepay'])).optional(),
   metadata: z.record(z.any()).optional(),
 });
 
@@ -33,6 +33,7 @@ export const verifyPaystackTransaction = async (reference: string) => {
     return {
       success: false,
       error: 'Failed to verify transaction',
+      data: null
     };
   }
 };
@@ -58,6 +59,7 @@ export const initializePaystackTransaction = async (transactionData: PaystackTra
     return {
       success: false,
       error: 'Failed to initialize transaction',
+      data: null
     };
   }
 };
