@@ -59,18 +59,19 @@ In line with **UN Sustainable Development Goal 4 (Quality Education)**, PathFind
 ## ✨ Features
 
 ### Core Features
--   **AI-Powered Learning Suggestions:** Get personalised learning path recommendations based on your skills, interests, and aspirations.
--   **Dynamic Roadmap Generation:** Generate step-by-step learning roadmaps for any chosen skill or career path.
--   **Progress Tracking & Analytics:** Monitor your progress with basic tracking for free. Pro users get advanced analytics.
--   **AI Monthly Check-ins:** Chat with an AI coach to refine your roadmap and stay motivated.
--   **Community & Mentor Connect:** Discover tech communities and find mentors to guide you.
+-   **AI-Powered Career Search & Suggestions:** Get personalized career path recommendations based on your profile or search for any career (e.g., "YouTuber") to instantly generate a learning roadmap.
+-   **Dynamic Roadmap Generation:** Generate step-by-step learning roadmaps for any chosen skill or career path, complete with milestones and curated resources.
+-   **AI Micro-Tutor:** Chat with an AI coach to get answers, refine your roadmap, and stay motivated.
+-   **Interactive AI Quiz Mode:** Test your knowledge with AI-generated quizzes on your completed milestones, skills, or any custom topic you choose. Get instant feedback and explanations.
+-   **Progress Tracking & Analytics:** Monitor your milestone completions and skills gained. Pro users get advanced analytics on learning velocity, skill distribution, and more.
+-   **Community & Mentor Connect:** Discover tech communities and find mentors to guide you on your journey.
 
 ### Pro Features
--   **Unlimited Roadmaps:** Generate as many career and skill roadmaps as you need
--   **Advanced Analytics:** Detailed progress tracking, skill mastery visualisation, and readiness assessments
--   **Verified Mentors:** Direct access to experienced professionals in your field
--   **Priority Support:** Get help when you need it most
--   **Ad-Free Experience:** Focus on your learning without distractions
+-   **Unlimited Roadmaps:** Generate as many career and skill roadmaps as you need.
+-   **Advanced Analytics:** Detailed progress tracking, skill mastery visualization, and readiness assessments.
+-   **Verified Mentors:** Direct access to experienced professionals in your field.
+-   **Priority Support:** Get help when you need it most.
+-   **Ad-Free Experience:** Focus on your learning without distractions.
 
 ## 💰 Subscription Plans
 
@@ -263,3 +264,5 @@ This project was developed as part of the PLP Hackathon 3.0 and has been submitt
 - All mentors and judges for their valuable feedback
 - Firebase team for the excellent documentation and tools
 - Paystack team for payment integration support
+
+    

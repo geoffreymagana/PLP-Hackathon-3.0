@@ -254,8 +254,15 @@ export default function SettingsPage() {
             <Skeleton className="h-10 w-1/3" />
             <Skeleton className="h-4 w-2/3" />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <Skeleton className="h-96 w-full col-span-1 lg:col-span-2" />
-                <Skeleton className="h-64 w-full" />
+                <div className="lg:col-span-2 space-y-8">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-80 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                </div>
+                <div className="space-y-8">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-80 w-full" />
+                </div>
             </div>
         </div>
     );
@@ -268,7 +275,7 @@ export default function SettingsPage() {
         description="Manage your account settings, preferences, and more."
       />
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="col-span-1 lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
@@ -363,7 +370,7 @@ export default function SettingsPage() {
             <BillingHistory />
         </div>
 
-        <div className="space-y-8">
+        <div className="col-span-1 space-y-8">
             <Card className={cn(userProfile?.isProUser && "border-primary")}>
                 <CardHeader>
                     <div className="flex justify-between items-center">
@@ -431,38 +438,38 @@ export default function SettingsPage() {
                 </div>
             </CardContent>
             </Card>
-        </div>
 
-
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3">
-            <CardHeader>
-                <CardTitle>Mentorship & Communities</CardTitle>
-                <CardDescription>
-                Connect with peers, mentors, and industry experts across Africa.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Link href="/connect?tab=communities" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <h4 className="font-semibold">Join a Community</h4>
-                    <p className="text-sm text-muted-foreground">Engage in discussions, share progress, and find collaborators.</p>
-                </Link>
-                <Link href="/connect?tab=mentors" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <h4 className="font-semibold">Find a Mentor</h4>
-                    <p className="text-sm text-muted-foreground">Get one-on-one guidance from experienced professionals.</p>
-                </Link>
-                 <Link href="/become-mentor" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                        <h4 className="font-semibold">Become a Mentor</h4>
-                        <div className="p-1.5 bg-primary/10 rounded-full">
-                           <GraduationCap className="h-4 w-4 text-primary" />
+             <Card>
+                <CardHeader>
+                    <CardTitle>Mentorship & Communities</CardTitle>
+                    <CardDescription>
+                    Connect with peers, mentors, and industry experts across Africa.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Link href="/connect?tab=communities" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                        <h4 className="font-semibold">Join a Community</h4>
+                        <p className="text-sm text-muted-foreground">Engage in discussions, share progress, and find collaborators.</p>
+                    </Link>
+                    <Link href="/connect?tab=mentors" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                        <h4 className="font-semibold">Find a Mentor</h4>
+                        <p className="text-sm text-muted-foreground">Get one-on-one guidance from experienced professionals.</p>
+                    </Link>
+                    <Link href="/become-mentor" className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-semibold">Become a Mentor</h4>
+                            <div className="p-1.5 bg-primary/10 rounded-full">
+                            <GraduationCap className="h-4 w-4 text-primary" />
+                            </div>
                         </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Share your expertise and guide the next generation of talent.</p>
-                </Link>
-            </CardContent>
-        </Card>
-
+                        <p className="text-sm text-muted-foreground">Share your expertise and guide the next generation of talent.</p>
+                    </Link>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+    
