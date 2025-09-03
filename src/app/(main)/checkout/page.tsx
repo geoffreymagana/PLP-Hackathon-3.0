@@ -111,7 +111,14 @@ function CheckoutPageContent() {
                     name: profile.displayName || user.displayName || "",
                     email: profile.email || user.email || "",
                     countryCode: userCountryCode,
+                    phone: "",
                     paymentMethod: "card",
+                    cardNumber: "",
+                    expiryDate: "",
+                    cvc: "",
+                    bankName: "",
+                    accountNumber: "",
+                    swiftCode: ""
                 });
 
                 handlePhonePrefix(userCountryCode);
@@ -168,8 +175,19 @@ function CheckoutPageContent() {
 
             const result = await response.json();
             
-            if (!result.authorization_url) {
-                throw new Error(result.error || 'Failed to initialize payment');
+            if (!response.ok || !result.authorization_url) {
+                 const errorMessage = result.error || 'Failed to initialize payment';
+                 let errorDescription = "Could not initialize payment. Please try again.";
+                if (errorMessage.toLowerCase().includes('invalid key')) {
+                    errorDescription = "Paystack API key is invalid or missing. Please check your server configuration."
+                }
+                toast({
+                    variant: "destructive",
+                    title: "Payment Error",
+                    description: errorDescription,
+                });
+                setIsSubmitting(false);
+                return;
             }
 
             // Redirect to Paystack checkout

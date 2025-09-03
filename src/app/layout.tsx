@@ -27,7 +27,7 @@ export default function RootLayout({
   }, []);
   return (
     <html lang="en" suppressHydrationWarning>
-      <head key="head">
+      <head>
         <title key="title">PathFinder AI</title>
         <meta name="description" content="AI-powered career guidance for the African job market." key="description" />
         <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" key="manifest" />
