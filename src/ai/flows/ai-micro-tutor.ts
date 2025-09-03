@@ -61,6 +61,12 @@ const prompt = ai.definePrompt({
   - Completed Milestones: {{{completedMilestones}}}
   - Conversation History: {{{conversationHistory}}}
   - User's latest message: {{{currentProgress}}}
+  
+  IMPORTANT FORMATTING RULE: When providing code examples, ALWAYS enclose them in proper markdown fenced code blocks with the language specified. For example:
+  \`\`\`javascript
+  console.log("Hello, World!");
+  \`\`\`
+  NEVER return code as plain text or with single backticks.
 
   TASK:
   1.  If the user asks for a quiz or to be tested, generate a relevant, multiple-choice or short-answer question based on their career goal.

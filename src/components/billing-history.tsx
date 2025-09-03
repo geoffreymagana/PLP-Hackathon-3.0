@@ -86,8 +86,8 @@ export function BillingHistory() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((tx, index) => (
-                <TableRow key={`${tx.id}-${index}`}>
+              {transactions.map((tx) => (
+                <TableRow key={tx.id}>
                   <TableCell>
                     {tx.date ? tx.date.toDate().toLocaleDateString() : 'N/A'}
                   </TableCell>

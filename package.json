@@ -60,6 +60,7 @@
     "react-markdown": "^9.0.1",
     "react-syntax-highlighter": "^15.6.6",
     "recharts": "^2.15.1",
+    "shiki": "^3.12.2",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2",

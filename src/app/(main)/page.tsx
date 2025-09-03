@@ -147,7 +147,7 @@ const SavedRoadmapsPreview = ({ roadmaps }: { roadmaps: any[] }) => (
         {roadmaps && roadmaps.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {roadmaps.map((roadmap, index) => (
-                    <RoadmapCard key={index} roadmap={roadmap} />
+                    <RoadmapCard key={`${roadmap.career}-${index}`} roadmap={roadmap} />
                 ))}
             </div>
         ) : (

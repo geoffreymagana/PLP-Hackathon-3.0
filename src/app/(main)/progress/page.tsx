@@ -298,7 +298,7 @@ export default function ProgressPage() {
 
     const progressData = calculateProgress(userProfile);
 
-    if (!userProfile?.savedRoadmaps || userProfile.savedRoadmaps.length === 0) {
+    if (!userProfile || (!userProfile.savedRoadmaps || userProfile.savedRoadmaps.length === 0) && (!userProfile.quizStats || userProfile.quizStats.totalQuestions === 0) ) {
         return (
              <div className="p-4 md:p-8 space-y-8">
                 <header className="space-y-2">
@@ -511,74 +511,78 @@ export default function ProgressPage() {
             
             <div className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 grid gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Overall Progress</CardTitle>
-                            <CardDescription>Your total milestone completion across all roadmaps.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1 pb-0">
-                            <ChartContainer 
-                                config={overallChartConfig} 
-                                className="h-64 mx-auto aspect-square"
-                            >
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Tooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent hideLabel />}
-                                        />
-                                        <Pie
-                                            data={overallProgressChartData}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            innerRadius="60%"
-                                            strokeWidth={5}
-                                            >
-                                        <Cell
-                                            key="completed"
-                                            fill="var(--color-completed)"
-                                            stroke="var(--color-completed)"
-                                        />
-                                        <Cell
-                                            key="remaining"
-                                            fill="var(--color-remaining)"
-                                            stroke="var(--color-remaining)"
-                                        />
-                                        </Pie>
-                                        <text
-                                            x="50%"
-                                            y="50%"
-                                            textAnchor="middle"
-                                            dominantBaseline="middle"
-                                            className="fill-foreground text-3xl font-bold"
-                                        >
-                                            {completionRate.toFixed(0)}%
-                                        </text>
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </ChartContainer>
-                        </CardContent>
-                        <CardFooter className="flex-col gap-2 text-sm pt-4">
-                            <div className="flex items-center gap-2 font-medium leading-none">
-                                Completed: {totalMilestonesCompleted} of {totalMilestones} milestones
-                            </div>
-                        </CardFooter>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Acquired Skills</CardTitle>
-                            <CardDescription>All the skills you have gained from completed roadmap steps.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-wrap gap-2">
-                            {acquiredSkills.length > 0 ? (
-                                acquiredSkills.map(skill => (
-                                    <Badge key={skill} variant="secondary">{skill}</Badge>
-                                ))
-                            ) : (
-                                <p className="text-muted-foreground text-sm">No skills acquired yet.</p>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {userProfile.savedRoadmaps && userProfile.savedRoadmaps.length > 0 && (
+                        <>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Overall Progress</CardTitle>
+                                    <CardDescription>Your total milestone completion across all roadmaps.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-1 pb-0">
+                                    <ChartContainer 
+                                        config={overallChartConfig} 
+                                        className="h-64 mx-auto aspect-square"
+                                    >
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Tooltip
+                                                    cursor={false}
+                                                    content={<ChartTooltipContent hideLabel />}
+                                                />
+                                                <Pie
+                                                    data={overallProgressChartData}
+                                                    dataKey="value"
+                                                    nameKey="name"
+                                                    innerRadius="60%"
+                                                    strokeWidth={5}
+                                                    >
+                                                <Cell
+                                                    key="completed"
+                                                    fill="var(--color-completed)"
+                                                    stroke="var(--color-completed)"
+                                                />
+                                                <Cell
+                                                    key="remaining"
+                                                    fill="var(--color-remaining)"
+                                                    stroke="var(--color-remaining)"
+                                                />
+                                                </Pie>
+                                                <text
+                                                    x="50%"
+                                                    y="50%"
+                                                    textAnchor="middle"
+                                                    dominantBaseline="middle"
+                                                    className="fill-foreground text-3xl font-bold"
+                                                >
+                                                    {completionRate.toFixed(0)}%
+                                                </text>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </ChartContainer>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-2 text-sm pt-4">
+                                    <div className="flex items-center gap-2 font-medium leading-none">
+                                        Completed: {totalMilestonesCompleted} of {totalMilestones} milestones
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Acquired Skills</CardTitle>
+                                    <CardDescription>All the skills you have gained from completed roadmap steps.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex flex-wrap gap-2">
+                                    {acquiredSkills.length > 0 ? (
+                                        acquiredSkills.map((skill, i) => (
+                                            <Badge key={`${skill}-${i}`} variant="secondary">{skill}</Badge>
+                                        ))
+                                    ) : (
+                                        <p className="text-muted-foreground text-sm">No skills acquired yet.</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </>
+                    )}
                 </div>
 
                  <div className="lg:col-span-1 space-y-6">
@@ -595,36 +599,38 @@ export default function ProgressPage() {
                             </CardContent>
                         </Card>
                     )}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Recently Completed Milestones</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {recentMilestones.length > 0 ? (
-                                <ul className="space-y-4">
-                                    {recentMilestones.map((milestone, index) => (
-                                        <li key={`${milestone.text}-${index}`} className="flex items-start gap-3">
-                                            <div className="bg-primary/10 text-primary p-1.5 rounded-full mt-1">
-                                                <Check className="h-4 w-4" />
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-sm">{milestone.text}</p>
-                                                <p className="text-xs text-muted-foreground">{milestone.career}</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-muted-foreground text-sm text-center py-8">
-                                    No milestones completed yet. Start working on a roadmap to see your progress!
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {userProfile.savedRoadmaps && userProfile.savedRoadmaps.length > 0 && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Recently Completed Milestones</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {recentMilestones.length > 0 ? (
+                                    <ul className="space-y-4">
+                                        {recentMilestones.map((milestone, index) => (
+                                            <li key={`${milestone.text}-${index}`} className="flex items-start gap-3">
+                                                <div className="bg-primary/10 text-primary p-1.5 rounded-full mt-1">
+                                                    <Check className="h-4 w-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-sm">{milestone.text}</p>
+                                                    <p className="text-xs text-muted-foreground">{milestone.career}</p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-muted-foreground text-sm text-center py-8">
+                                        No milestones completed yet. Start working on a roadmap to see your progress!
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
                  </div>
             </div>
 
-            <AdvancedAnalytics />
+            {userProfile.savedRoadmaps && userProfile.savedRoadmaps.length > 0 && <AdvancedAnalytics />}
         </div>
     );
 }

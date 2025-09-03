@@ -23,6 +23,10 @@ const faqData = [
     answer: "On our free Basic plan, you can generate and save up to three personalized learning roadmaps. For unlimited roadmaps and advanced features, you can upgrade to our Pro plan.",
   },
   {
+    question: "Why are there daily limits on AI features?",
+    answer: "To ensure a high-quality and responsive experience for all our users, we have daily usage limits on AI-powered features like roadmap generation and tutor chats. These limits reset every 24 hours. Pro users receive significantly higher limits. If you are a Pro user with specific high-volume needs, please contact support.",
+  },
+  {
     question: "Are the roadmaps personalized?",
     answer: "Yes, completely. Instead of a one-size-fits-all curriculum, PathFinder generates a learning journey that is customized to your starting point, aspirations, and available time, ensuring an efficient and effective learning experience.",
   },
@@ -54,7 +58,7 @@ export default function FaqPage() {
       <div className="max-w-3xl mx-auto">
         <Accordion type="single" collapsible className="w-full">
           {faqData.map((item, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
+            <AccordionItem key={index} value={item.question}>
               <AccordionTrigger className="text-left font-semibold text-lg">
                 {item.question}
               </AccordionTrigger>

@@ -41,7 +41,7 @@ export default function RootLayout({
           key="font-space-grotesk"
         />
       </head>
-      <body className="font-body antialiased" suppressHydrationWarning key="body">
+      <body className="font-body antialiased" suppressHydrationWarning>
         {children}
         <Toaster />
       </body>

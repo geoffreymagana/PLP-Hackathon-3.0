@@ -37,6 +37,7 @@ import { PageHeader } from "@/components/page-header";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { BillingHistory } from "@/components/billing-history";
+import { UsageLimitCard } from "@/components/ui/usage-limit-card";
 
 const profileFormSchema = z.object({
   displayName: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, { message: "Name must be less than 50 characters." }),
@@ -48,6 +49,11 @@ type UserProfile = {
     isProUser?: boolean;
     language?: string;
     displayName?: string;
+    usage?: {
+        roadmaps: number;
+        tutor: number;
+        quizzes: number;
+    }
 };
 
 const SettingsListItem = ({ children, href }: { children: React.ReactNode, href?: string }) => {
@@ -67,6 +73,21 @@ const SettingsListItem = ({ children, href }: { children: React.ReactNode, href?
     return content;
 };
 
+const proFeatures = [
+    "Everything in Basic, plus:",
+    "Unlimited AI-Generated Roadmaps",
+    "Advanced Learning Analytics",
+    "Access to Verified Mentors",
+    "Priority Support",
+];
+
+const basicFeatures = [
+    "3 Free AI-Generated Roadmaps",
+    "Access to Open-Source Learning Resources",
+    "Community Access (Unverified)",
+    "Basic Progress Tracking",
+];
+
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -75,6 +96,13 @@ export default function SettingsPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
+
+  // Mock usage data
+    const usageData = {
+        roadmaps: { usage: userProfile?.usage?.roadmaps ?? 0, limit: userProfile?.isProUser ? 100 : 3 },
+        tutor: { usage: userProfile?.usage?.tutor ?? 0, limit: userProfile?.isProUser ? 500 : 50 },
+        quizzes: { usage: userProfile?.usage?.quizzes ?? 0, limit: userProfile?.isProUser ? 25 : 5 },
+    };
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -309,6 +337,17 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
+            <UsageLimitCard
+                title="AI Usage"
+                description="Your daily AI feature usage. Limits reset daily."
+                isProUser={!!userProfile?.isProUser}
+                items={[
+                    { name: "Roadmap Generations", usage: usageData.roadmaps.usage, limit: usageData.roadmaps.limit },
+                    { name: "AI Tutor Messages", usage: usageData.tutor.usage, limit: usageData.tutor.limit },
+                    { name: "Quiz Generations", usage: usageData.quizzes.usage, limit: usageData.quizzes.limit },
+                ]}
+            />
+
             <Card>
                 <CardHeader>
                     <CardTitle>Preferences</CardTitle>
@@ -394,10 +433,9 @@ export default function SettingsPage() {
                         {userProfile?.isProUser && <p className="text-xs text-muted-foreground">You have access to all features!</p>}
                     </Card>
                     <ul className="text-sm space-y-2 text-muted-foreground">
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Unlimited AI-Generated Roadmaps</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Advanced Learning Analytics</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Access to Verified Mentors</li>
-                        <li className="flex items-center"><Check className="mr-2 text-green-500"/> Priority Support</li>
+                        {(userProfile?.isProUser ? proFeatures : basicFeatures).map((feature, index) => (
+                          <li key={index} className="flex items-center"><Check className="mr-2 text-green-500"/> {feature}</li>
+                        ))}
                     </ul>
                     {!userProfile?.isProUser && (
                          <Link href="/pricing" className="w-full">
@@ -471,5 +509,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

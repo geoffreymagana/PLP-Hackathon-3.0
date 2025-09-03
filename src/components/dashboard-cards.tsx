@@ -45,8 +45,8 @@ export function DashboardCards() {
     return (
         <div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {cardData.map((card, index) => (
-                    <Link href={card.href} key={index} className="group">
+                {cardData.map((card) => (
+                    <Link href={card.href} key={card.href} className="group">
                         <Card className={cn("h-full hover:border-primary transition-colors hover:shadow-lg border-l-4", card.borderColor)}>
                             <CardHeader className="space-y-3">
                                 <div className={cn("p-3 rounded-full w-fit group-hover:bg-primary group-hover:text-primary-foreground transition-colors", card.color)}>

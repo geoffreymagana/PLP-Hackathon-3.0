@@ -42,8 +42,8 @@ export default function AboutPage() {
         <div>
           <h2 className="text-2xl font-bold text-center mb-8 font-headline">Meet the Team</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 justify-center">
-            {teamMembers.map((member) => (
-              <div key={member.name} className="flex flex-col items-center text-center">
+            {teamMembers.map((member, index) => (
+              <div key={`${member.name}-${index}`} className="flex flex-col items-center text-center">
                 <Avatar className="h-24 w-24 mb-4 border-2 border-primary">
                   <AvatarImage src={`https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${member.seed}`} alt={member.name} />
                   <AvatarFallback>{member.seed.substring(0, 2).toUpperCase()}</AvatarFallback>

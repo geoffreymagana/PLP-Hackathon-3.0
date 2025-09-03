@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,23 +61,25 @@ export function FillInBlanksQuiz({ text, blanks, onSubmit, timeLimit }: FillInBl
 
       <div className="space-y-4">
         {parts.map((part, index) => {
+           const key = `part-${index}`;
           if (index % 2 === 0) {
             // Text part
-            return <span key={`text-${index}`}>{part}</span>;
+            return <span key={key}>{part}</span>;
           } else {
             // Input part
             const blankIndex = parseInt(part, 10);
             if(blanks && blanks[blankIndex]) {
               const blankId = blanks[blankIndex].id;
               return (
-                <Input
-                  key={`blank-${blankId}-${index}`}
-                  type="text"
-                  value={answers.get(blankId) || ''}
-                  onChange={(e) => handleAnswerChange(blankId, e.target.value)}
-                  className="w-32 inline-block mx-1"
-                  disabled={isSubmitting}
-                />
+                <Fragment key={key}>
+                    <Input
+                    type="text"
+                    value={answers.get(blankId) || ''}
+                    onChange={(e) => handleAnswerChange(blankId, e.target.value)}
+                    className="w-32 inline-block mx-1"
+                    disabled={isSubmitting}
+                    />
+                </Fragment>
               );
             }
             return null;

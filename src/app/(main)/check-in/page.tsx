@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Loader2, Send, Sparkles, ChevronDown, ChevronUp, Flame } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/chat/copy-button";
@@ -17,13 +17,13 @@ import type { QuizData, MatchingQuizData, FillInBlanksQuizData, MultipleChoiceQu
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { microTutorChat } from "@/ai/flows/ai-micro-tutor";
 import type { MicroTutorChatOutput } from "@/ai/flows/ai-micro-tutor";
 import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -32,6 +32,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { sendNewMessageNotification } from "@/services/notification-service";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+
 
 const formSchema = z.object({
   currentProgress: z.string().min(1, "Message cannot be empty."),
@@ -62,6 +65,7 @@ type UserProfile = {
   interests: string;
   education: string;
   location: string;
+  avatarUrl?: string;
   savedRoadmaps?: any[];
   completedMilestones?: string[];
   chatHistory?: Message[];
@@ -117,6 +121,41 @@ const ChatSkeleton = () => (
   </div>
 );
 
+const StreakDonut = ({ streak }: { streak: number }) => {
+    const data = [
+        { name: "streak", value: Math.min(streak, 10) }, // Cap at 10 for visualization
+        { name: "empty", value: Math.max(10 - streak, 0) }
+    ];
+    return (
+        <div className="relative w-32 h-32">
+            <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                    <Pie
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="70%"
+                        outerRadius="100%"
+                        startAngle={90}
+                        endAngle={450}
+                        paddingAngle={0}
+                        dataKey="value"
+                        stroke="none"
+                    >
+                        <Cell fill="hsl(var(--primary))" />
+                        <Cell fill="hsl(var(--muted))" />
+                    </Pie>
+                </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Flame className="h-8 w-8 text-orange-500"/>
+                <span className="text-xl font-bold">{streak}</span>
+            </div>
+        </div>
+    );
+};
+
+
 export default function CheckInPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -134,6 +173,7 @@ export default function CheckInPage() {
     streakCount: 0
   });
   const [quizMode, setQuizMode] = useState(false);
+  const [isQuizPanelOpen, setIsQuizPanelOpen] = useState(true);
 
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -417,35 +457,33 @@ export default function CheckInPage() {
     <div className="flex h-screen">
       {/* Main chat area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="p-4 md:p-8 border-b">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight font-headline">AI-Micro-Tutor (Chat AMT)</h1>
-              <p className="text-muted-foreground">Chat with your AI coach to get answers and refine your roadmap.</p>
-            </div>
-            <div className="flex items-center gap-4 md:hidden">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowQuizModal(true)}
-              >
-                Start Quiz
-              </Button>
-            </div>
-          </div>
-        </header>
+          {/* Header */}
+          <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+              {/* Mobile Header */}
+              <div className="flex items-center justify-between p-4 md:hidden">
+                  <h1 className="text-xl font-bold font-headline">CHAT AMT</h1>
+                  <Button variant="outline" size="sm" onClick={() => setShowQuizModal(true)}>
+                      Start Quiz
+                  </Button>
+              </div>
+              {/* Desktop Header */}
+              <div className="hidden md:block p-8">
+                  <h1 className="text-3xl font-bold tracking-tight font-headline">AI-Micro-Tutor (Chat AMT)</h1>
+                  <p className="text-muted-foreground">Chat with your AI coach to get answers and refine your roadmap.</p>
+              </div>
+          </header>
         
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-24 md:pb-8" ref={scrollAreaRef}>
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-28 md:pb-8" ref={scrollAreaRef}>
         {messages.map((message, index) => (
           <div 
             key={`message-${message.role}-${index}-${message.content.slice(0, 10)}`} 
             className={`flex items-start gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}>
             {message.role === 'ai' && (
-              <Avatar className="bg-transparent text-accent-foreground">
+              <Avatar className="bg-transparent text-accent-foreground shrink-0">
                 <AvatarFallback className="bg-transparent"><AIAvatar /></AvatarFallback>
               </Avatar>
             )}
-            <div className={cn(`rounded-lg p-3 max-w-lg shadow-sm group relative`, {
+            <div className={cn(`rounded-lg p-3 max-w-[85%] shadow-sm group relative`, {
               'bg-muted': message.role === 'ai',
               'bg-primary text-primary-foreground': message.role === 'user'
             })}>
@@ -487,15 +525,16 @@ export default function CheckInPage() {
               )}
             </div>
             {message.role === 'user' && (
-              <Avatar>
-                <AvatarFallback><User size={20} /></AvatarFallback>
-              </Avatar>
+               <Avatar className="shrink-0">
+                  <AvatarImage src={userProfile?.avatarUrl} alt="User avatar" />
+                  <AvatarFallback><User size={20} /></AvatarFallback>
+                </Avatar>
             )}
           </div>
         ))}
         {isLoading && messages.length > 0 && messages[messages.length -1].role === 'user' && (
           <div className="flex items-start gap-4">
-            <Avatar className="bg-transparent text-accent-foreground">
+            <Avatar className="bg-transparent text-accent-foreground shrink-0">
               <AvatarFallback className="bg-transparent"><AIAvatar /></AvatarFallback>
             </Avatar>
             <div className="rounded-lg p-3 bg-muted flex items-center gap-2">
@@ -510,7 +549,7 @@ export default function CheckInPage() {
         )}
       </div>
 
-      <div className="p-4 border-t bg-background">
+      <div className="fixed bottom-16 left-0 right-0 md:static p-4 border-t bg-background">
         {showSuggestions && suggestedPrompts.length > 0 && !isLoading && (
           <div className="flex flex-wrap gap-2 mb-4">
             {suggestedPrompts.map((prompt, i) => (
@@ -568,20 +607,37 @@ export default function CheckInPage() {
       </div>
     </div>
 
-      {/* Quiz Button */}
-      <div className="hidden md:flex flex-col w-80 border-l p-4">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Quiz Mode</h2>
-            <Button 
-              variant="outline"
-              onClick={() => setShowQuizModal(true)}
+      {/* Quiz Side Panel */}
+        <div className="hidden md:flex flex-col w-80 border-l">
+            <Collapsible
+                open={isQuizPanelOpen}
+                onOpenChange={setIsQuizPanelOpen}
+                className="flex-1 flex flex-col"
             >
-              Start Quiz
-            </Button>
-          </div>
+                <div className="p-4 border-b">
+                    <CollapsibleTrigger asChild>
+                        <Button variant="ghost" className="w-full justify-between">
+                            <h2 className="text-lg font-semibold">Quiz Mode</h2>
+                            {isQuizPanelOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <div className="flex flex-col items-center text-center">
+                        <StreakDonut streak={quizStats.streakCount} />
+                        <p className="text-sm text-muted-foreground mt-2">Current Streak</p>
+                    </div>
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setShowQuizModal(true)}
+                    >
+                        Start New Quiz
+                    </Button>
+                </CollapsibleContent>
+            </Collapsible>
         </div>
-      </div>
+
 
       {/* Quiz Modal */}
       {userProfile && (
@@ -594,3 +650,4 @@ export default function CheckInPage() {
     </div>
   );
 }
+

@@ -153,7 +153,7 @@ export function QuizModal({ isOpen, onClose, userProfile, initialTopic = "" }: Q
     let isCorrect = false;
 
     if (isMultipleChoiceQuiz(quiz)) {
-      isCorrect = quiz.correctAnswers.length === answer.length && quiz.correctAnswers.every((a:any) => answer.includes(a));
+      isCorrect = Array.isArray(answer) && quiz.correctAnswers.length === answer.length && quiz.correctAnswers.every((a:any) => answer.includes(a));
     } else if (isMatchingQuiz(quiz)) {
       isCorrect = answer.every((match: { leftId: string, rightId: string }) => {
         const pair = quiz.pairs.find(p => p.id === match.leftId);
@@ -238,15 +238,17 @@ export function QuizModal({ isOpen, onClose, userProfile, initialTopic = "" }: Q
         }
         break;
       default:
-        return (
-          <Quiz
-            question={{
-              id: `quiz-${currentQuestionIndex}`,
-              ...currentQuiz as MultipleChoiceQuizData
-            }}
-            onSubmit={(answers) => handleAnswerSubmit(currentQuiz, answers)}
-          />
-        );
+        if (isMultipleChoiceQuiz(currentQuiz)){
+          return (
+            <Quiz
+              question={{
+                id: `quiz-${currentQuestionIndex}`,
+                ...currentQuiz
+              }}
+              onSubmit={(answers) => handleAnswerSubmit(currentQuiz, answers)}
+            />
+          );
+        }
     }
     return <p className="text-destructive">Error: Could not render quiz question.</p>;
   };
