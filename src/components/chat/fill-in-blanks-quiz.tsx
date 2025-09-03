@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ export function FillInBlanksQuiz({ text, blanks, onSubmit, timeLimit }: FillInBl
     }, 1000);
 
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLimit]);
 
   const handleAnswerChange = (id: string, value: string) => {
@@ -61,19 +63,24 @@ export function FillInBlanksQuiz({ text, blanks, onSubmit, timeLimit }: FillInBl
         {parts.map((part, index) => {
           if (index % 2 === 0) {
             // Text part
-            return <span key={index}>{part}</span>;
+            return <span key={`text-${index}`}>{part}</span>;
           } else {
             // Input part
-            const blankId = blanks[parseInt(part)].id;
-            return (
-              <Input
-                key={index}
-                type="text"
-                value={answers.get(blankId) || ''}
-                onChange={(e) => handleAnswerChange(blankId, e.target.value)}
-                className="w-32 inline-block mx-1"
-              />
-            );
+            const blankIndex = parseInt(part, 10);
+            if(blanks && blanks[blankIndex]) {
+              const blankId = blanks[blankIndex].id;
+              return (
+                <Input
+                  key={`blank-${blankId}-${index}`}
+                  type="text"
+                  value={answers.get(blankId) || ''}
+                  onChange={(e) => handleAnswerChange(blankId, e.target.value)}
+                  className="w-32 inline-block mx-1"
+                  disabled={isSubmitting}
+                />
+              );
+            }
+            return null;
           }
         })}
       </div>

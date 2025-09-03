@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -136,8 +137,8 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             console.warn('Error in code block:', error);
             // Fallback to plain formatting
             return (
-              <pre className="p-4 bg-muted rounded-lg">
-                <code>{content}</code>
+              <pre className="p-4 bg-muted rounded-lg" {...props}>
+                <code {...props}>{content}</code>
               </pre>
             );
           }

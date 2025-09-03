@@ -1,3 +1,4 @@
+
 import type { QuizData, MultipleChoiceQuizData, MatchingQuizData, FillInBlanksQuizData } from '@/types/quiz';
 
 export function isMultipleChoiceQuiz(quiz: QuizData): quiz is MultipleChoiceQuizData {
@@ -24,39 +25,37 @@ export function transformQuiz(quiz: any): QuizData | null {
     points: Number(quiz.points || 1)
   };
 
-  if (quiz.type === 'matching' && Array.isArray(quiz.pairs)) {
+  if (quiz.type === 'matching' && Array.isArray(quiz.pairs) && quiz.pairs.length > 0) {
     return {
       ...baseQuiz,
       type: 'matching',
       pairs: quiz.pairs.map((p: any) => ({
-        id: String(p.id || Math.random()),
+        id: String(p.id || Math.random().toString(36).substring(2)),
         left: String(p.left || ''),
         right: String(p.right || '')
       }))
     } as MatchingQuizData;
   }
   
-  if (quiz.type === 'fill-in-blanks' || quiz.type === 'fill-in-the-blanks') {
-    if (!quiz.text || !Array.isArray(quiz.blanks)) return null;
+  if ((quiz.type === 'fill-in-blanks' || quiz.type === 'fill-in-the-blanks') && quiz.text && Array.isArray(quiz.blanks) && quiz.blanks.length > 0) {
     return {
       ...baseQuiz,
       type: 'fill-in-blanks',
       text: String(quiz.text),
       blanks: quiz.blanks.map((b: any) => ({
-        id: String(b.id || Math.random()),
+        id: String(b.id || Math.random().toString(36).substring(2)),
         answer: String(b.answer || ''),
         alternatives: Array.isArray(b.alternatives) ? b.alternatives.map(String) : []
       }))
     } as FillInBlanksQuizData;
   }
   
-  if (quiz.type === 'single' || quiz.type === 'multiple' || quiz.type === 'multiple-choice' || quiz.type === 'single-answer') {
-    if (!Array.isArray(quiz.options) || !Array.isArray(quiz.correctAnswers)) return null;
+  if ((quiz.type === 'single' || quiz.type === 'multiple' || quiz.type === 'multiple-choice' || quiz.type === 'single-answer') && Array.isArray(quiz.options) && Array.isArray(quiz.correctAnswers) && quiz.options.length > 0) {
     return {
       ...baseQuiz,
-      type: quiz.type === 'single' || quiz.type === 'single-answer' ? 'single' : 'multiple',
+      type: quiz.type.startsWith('single') ? 'single' : 'multiple',
       options: quiz.options.map((opt: any) => ({
-        id: String(opt.id || Math.random()),
+        id: String(opt.id || Math.random().toString(36).substring(2)),
         text: String(opt.text || '')
       })),
       correctAnswers: quiz.correctAnswers.map(String)

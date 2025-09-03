@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,6 +37,7 @@ export function MatchingQuiz({ pairs, onSubmit, timeLimit }: MatchingQuizProps) 
     }, 1000);
 
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLimit]);
 
   const handleLeftClick = (id: string) => {
@@ -46,18 +48,21 @@ export function MatchingQuiz({ pairs, onSubmit, timeLimit }: MatchingQuizProps) 
   const handleRightClick = (id: string) => {
     if (!selectedLeft || matches.has(selectedLeft)) return;
     
-    setMatches(new Map(matches.set(selectedLeft, id)));
+    const newMatches = new Map(matches.set(selectedLeft, id));
+    setMatches(newMatches);
     setSelectedLeft(null);
 
-    // Check if all pairs are matched
-    if (matches.size === pairs.length - 1) {
-      handleSubmit();
+    // This was the bug: checking before state update is complete.
+    // Let's check size after potential update.
+    if (newMatches.size === pairs.length) {
+      // Auto-submit when all pairs are matched
+      handleSubmit(newMatches);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (currentMatches = matches) => {
     setIsSubmitting(true);
-    const matchArray = Array.from(matches.entries()).map(([leftId, rightId]) => ({
+    const matchArray = Array.from(currentMatches.entries()).map(([leftId, rightId]) => ({
       leftId,
       rightId,
     }));
@@ -79,8 +84,8 @@ export function MatchingQuiz({ pairs, onSubmit, timeLimit }: MatchingQuizProps) 
               key={pair.id}
               className={cn(
                 "p-4 cursor-pointer transition-colors",
-                selectedLeft === pair.id && "border-primary",
-                matches.has(pair.id) && "opacity-50",
+                selectedLeft === pair.id && "border-primary ring-2 ring-primary",
+                matches.has(pair.id) && "opacity-50 cursor-not-allowed bg-muted",
               )}
               onClick={() => handleLeftClick(pair.id)}
             >
@@ -95,7 +100,7 @@ export function MatchingQuiz({ pairs, onSubmit, timeLimit }: MatchingQuizProps) 
               key={pair.id}
               className={cn(
                 "p-4 cursor-pointer transition-colors",
-                Array.from(matches.values()).includes(pair.id) && "opacity-50"
+                Array.from(matches.values()).includes(pair.id) && "opacity-50 cursor-not-allowed bg-muted"
               )}
               onClick={() => handleRightClick(pair.id)}
             >
@@ -107,7 +112,7 @@ export function MatchingQuiz({ pairs, onSubmit, timeLimit }: MatchingQuizProps) 
 
       <Button 
         className="w-full" 
-        onClick={handleSubmit}
+        onClick={() => handleSubmit()}
         disabled={matches.size !== pairs.length || isSubmitting}
       >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

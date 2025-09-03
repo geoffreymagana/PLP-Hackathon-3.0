@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -189,7 +190,7 @@ export default function CheckInPage() {
       const randomMessage = messageList[Math.floor(Math.random() * messageList.length)];
       setThinkingMessage(randomMessage);
     }
-  }, [isLoading, messages]);
+  }, [isLoading, messages, tutorThinkingMessages]);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -307,7 +308,6 @@ export default function CheckInPage() {
     }
 
     let isCorrect = false;
-    let responseContent = '';
 
     switch (quiz.type) {
       case 'single':
@@ -338,6 +338,35 @@ export default function CheckInPage() {
       ...updatedMessages[messageIndex],
       isAnswered: true
     };
+    
+    // Create new AI messages for feedback
+    const feedbackMessages: Message[] = [];
+
+    if (isCorrect) {
+        feedbackMessages.push({
+            role: "ai",
+            content: "✅ Excellent! You got it right! Would you like to try another question?",
+            type: 'text'
+        });
+    } else {
+        feedbackMessages.push({
+            role: "ai",
+            content: "❌ Not quite right. Let's review this concept together.",
+            type: 'text'
+        });
+        if (quiz.explanation) {
+            feedbackMessages.push({
+                role: "ai",
+                content: quiz.explanation,
+                type: 'text'
+            });
+        }
+    }
+
+
+    const messagesWithFeedback = [...updatedMessages, ...feedbackMessages];
+    setMessages(messagesWithFeedback);
+    await saveChatHistory(messagesWithFeedback);
 
     // Update quiz statistics
     setQuizStats(prev => {
@@ -357,31 +386,6 @@ export default function CheckInPage() {
         }
       };
     });
-
-    // AI response message
-    const aiResponse: Message = {
-      role: "ai",
-      content: isCorrect
-        ? "✅ Excellent! You got it right! Would you like to try another question?"
-        : `❌ Not quite right. ${quiz.explanation || "Let's review this concept together. Would you like me to explain it in more detail?"}`,
-      type: 'text'
-    };
-    
-    const messagesWithAnswer = [...updatedMessages, aiResponse];
-    setMessages(messagesWithAnswer);
-    await saveChatHistory(messagesWithAnswer);
-
-    // If incorrect, send explanation
-    if (!isCorrect) {
-      const explanationMessage: Message = {
-        role: "ai",
-        content: quiz.explanation || "Let me know if you'd like me to explain this concept further.",
-        type: 'text'
-      };
-      const updatedMessagesWithExplanation = [...updatedMessages, explanationMessage];
-      setMessages(updatedMessagesWithExplanation);
-      await saveChatHistory(updatedMessagesWithExplanation);
-    }
   };
 
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

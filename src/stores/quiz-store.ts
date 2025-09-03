@@ -1,21 +1,23 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { QuizData, QuizStatistics } from '@/types/quiz';
 
-interface QuizProgress {
-  answeredQuestions: Record<string, boolean>;
-  currentQuestionIndex: number;
-  quizzes: QuizData[];
-  answers: any[];
-  stats: QuizStatistics;
+interface Answer {
+  answer: any;
+  isCorrect: boolean;
 }
 
-interface QuizStore extends QuizProgress {
+interface QuizStore {
+  quizzes: QuizData[];
+  answers: Answer[];
+  currentQuestionIndex: number;
+  stats: QuizStatistics;
   setQuizzes: (quizzes: QuizData[]) => void;
   setCurrentQuestionIndex: (index: number) => void;
-  markQuestionAnswered: (questionId: string) => void;
-  addAnswer: (answer: any) => void;
-  updateStats: (stats: Partial<QuizStatistics>) => void;
+  addAnswer: (answer: Answer) => void;
+  updateStats: (newStats: Partial<QuizStatistics>) => void;
+  loadStats: (stats: QuizStatistics) => void;
   resetProgress: () => void;
 }
 
@@ -26,20 +28,19 @@ const initialStats: QuizStatistics = {
   streakCount: 0
 };
 
+const initialState = {
+  quizzes: [],
+  answers: [],
+  currentQuestionIndex: 0,
+  stats: initialStats,
+};
+
 export const useQuizStore = create<QuizStore>()(
   persist(
     (set) => ({
-      answeredQuestions: {},
-      currentQuestionIndex: 0,
-      quizzes: [],
-      answers: [],
-      stats: initialStats,
-      setQuizzes: (quizzes) => set({ quizzes, currentQuestionIndex: 0, answers: [], answeredQuestions: {} }),
+      ...initialState,
+      setQuizzes: (quizzes) => set({ quizzes, answers: [], currentQuestionIndex: 0 }),
       setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
-      markQuestionAnswered: (questionId) => 
-        set((state) => ({
-          answeredQuestions: { ...state.answeredQuestions, [questionId]: true }
-        })),
       addAnswer: (answer) =>
         set((state) => ({
           answers: [...state.answers, answer]
@@ -48,14 +49,8 @@ export const useQuizStore = create<QuizStore>()(
         set((state) => ({
           stats: { ...state.stats, ...newStats }
         })),
-      resetProgress: () => 
-        set({
-          answeredQuestions: {},
-          currentQuestionIndex: 0,
-          quizzes: [],
-          answers: [],
-          stats: initialStats
-        })
+      loadStats: (stats) => set({ stats }),
+      resetProgress: () => set(initialState)
     }),
     {
       name: 'quiz-progress'
