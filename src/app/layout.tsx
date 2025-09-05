@@ -4,6 +4,7 @@
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // Metadata cannot be defined in a client component, so we move it to a higher-level layout if needed
 // or handle it dynamically. For this case, we'll remove it from the client component.
@@ -42,8 +43,15 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

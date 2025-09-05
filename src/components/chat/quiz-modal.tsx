@@ -296,10 +296,10 @@ export function QuizModal({ isOpen, onClose, userProfile, initialTopic = "" }: Q
                   <Select value={quizType} onValueChange={setQuizType}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="multiple">Multiple Choice</SelectItem>
-                      <SelectItem value="single">Single Answer</SelectItem>
-                      <SelectItem value="matching">Matching</SelectItem>
-                      <SelectItem value="fill-in-blanks">Fill in the Blanks</SelectItem>
+                      <SelectItem key="multiple" value="multiple">Multiple Choice</SelectItem>
+                      <SelectItem key="single" value="single">Single Answer</SelectItem>
+                      <SelectItem key="matching" value="matching">Matching</SelectItem>
+                      <SelectItem key="fill-in-blanks" value="fill-in-blanks">Fill in the Blanks</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -309,9 +309,9 @@ export function QuizModal({ isOpen, onClose, userProfile, initialTopic = "" }: Q
                   <Select value={String(numQuestions)} onValueChange={(val) => setNumQuestions(Number(val))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem key="1" value="1">1</SelectItem>
+                      <SelectItem key="5" value="5">5</SelectItem>
+                      <SelectItem key="10" value="10">10</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -68,7 +69,7 @@ export default function MyRoadmapsPage() {
       {savedRoadmaps.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {savedRoadmaps.map((roadmap, index) => (
-            <RoadmapCard key={index} roadmap={roadmap} showViewButton={true} />
+            <RoadmapCard key={`${roadmap.career}-${index}`} roadmap={roadmap} showViewButton={true} />
           ))}
         </div>
       ) : (

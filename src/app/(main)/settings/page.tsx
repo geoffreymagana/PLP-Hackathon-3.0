@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Check, ChevronRight, Crown, Loader2, Bell, GraduationCap } from "lucide-react";
+import { Check, ChevronRight, Crown, Loader2, Bell, GraduationCap, Moon, Sun, Monitor } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
@@ -38,6 +38,8 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { BillingHistory } from "@/components/billing-history";
 import { UsageLimitCard } from "@/components/ui/usage-limit-card";
+import { useTheme } from "next-themes";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const profileFormSchema = z.object({
   displayName: z.string().min(2, { message: "Name must be at least 2 characters." }).max(50, { message: "Name must be less than 50 characters." }),
@@ -96,6 +98,8 @@ export default function SettingsPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const { setTheme } = useTheme();
+
 
   // Mock usage data
     const usageData = {
@@ -356,19 +360,46 @@ export default function SettingsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                    <Label htmlFor="language-select">Language</Label>
-                    <Select value={userProfile?.language || 'en'} onValueChange={handleLanguageChange}>
-                        <SelectTrigger id="language-select" className="w-full md:w-1/2">
-                        <SelectValue placeholder="Select language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="fr">Français (French)</SelectItem>
-                        <SelectItem value="sw">Kiswahili (Swahili)</SelectItem>
-                        <SelectItem value="yo">Yorùbá</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="language-select">Language</Label>
+                            <Select value={userProfile?.language || 'en'} onValueChange={handleLanguageChange}>
+                                <SelectTrigger id="language-select">
+                                <SelectValue placeholder="Select language" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="fr">Français (French)</SelectItem>
+                                <SelectItem value="sw">Kiswahili (Swahili)</SelectItem>
+                                <SelectItem value="yo">Yorùbá</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Theme</Label>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-between">
+                                        <span>Select Theme</span>
+                                        <div className="relative h-[1.2rem] w-[1.2rem]">
+                                            <Sun className="absolute h-full w-full rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                            <Moon className="absolute h-full w-full rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                        </div>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => setTheme("light")}>
+                                        <Sun className="mr-2 h-4 w-4" /> Light
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                        <Moon className="mr-2 h-4 w-4" /> Dark
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setTheme("system")}>
+                                        <Monitor className="mr-2 h-4 w-4" /> System
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                     <Separator />
                     <div className="space-y-4">
@@ -434,7 +465,7 @@ export default function SettingsPage() {
                     </Card>
                     <ul className="text-sm space-y-2 text-muted-foreground">
                         {(userProfile?.isProUser ? proFeatures : basicFeatures).map((feature, index) => (
-                          <li key={index} className="flex items-center"><Check className="mr-2 text-green-500"/> {feature}</li>
+                          <li key={feature} className="flex items-center"><Check className="mr-2 text-green-500"/> {feature}</li>
                         ))}
                     </ul>
                     {!userProfile?.isProUser && (
